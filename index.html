@@ -3,458 +3,890 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TrueHarvest — Program Management & VQA Dashboard</title>
+  <title>TrueHarvest — Autonomous Sprint Delivery & VQA Remediation</title>
   <script src="https://cdn.tailwindcss.com"></script>
-<style>#toggle-form-btn, #admin-panel, td:last-child, th:last-child { display: none !important; }</style></head>
-<body class="bg-slate-50 text-slate-800 antialiased font-sans p-6 md:p-10">
-  <div class="max-w-6xl mx-auto space-y-8">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-[#f8faf9] text-slate-800 antialiased font-sans">
+  <div class="min-h-screen flex flex-col">
     
-    <!-- Executive Header -->
-    <header class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-      <div>
-        <div class="flex items-center gap-2">
-          <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Program Management Lifecycle</span>
+    <!-- Top Global Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 px-4 lg:px-8 py-3">
+      <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-lg shadow-xs">
+            🌱
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-base font-black tracking-tight text-slate-900">TrueHarvest</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 tracking-wider uppercase">Showcase Mode</span>
+            </div>
+            <p class="text-xs text-slate-500">Autonomous Sprint Delivery &amp; Multimodal VQA Remediation</p>
+          </div>
         </div>
-        <h1 class="text-2xl font-black text-slate-900 mt-1">TrueHarvest Execution Dashboard</h1>
-        <p class="text-sm text-slate-600 mt-0.5">Multimodal Visual QA Audits &amp; Hybrid AI Development</p>
-      </div>
-      <div class="flex items-center gap-3">
-        <button id="toggle-form-btn" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors">
-          + Add New Sprint
-        </button>
-        <a href="/index.html" class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition-colors">
-          Open Live App &rarr;
-        </a>
+
+        <!-- Global Navigation Tabs -->
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+          <button onclick="switchTab('roadmap')" id="nav-roadmap" class="nav-tab px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-emerald-700 text-white shadow-xs">
+            <i class="fa-solid fa-list-check mr-1.5"></i>Sprint Roadmap
+          </button>
+          <button onclick="switchTab('gantt')" id="nav-gantt" class="nav-tab px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all">
+            <i class="fa-solid fa-chart-gantt mr-1.5"></i>Gantt Chart &amp; Timeline
+          </button>
+          <button onclick="switchTab('vqa')" id="nav-vqa" class="nav-tab px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all">
+            <i class="fa-solid fa-shield-halved mr-1.5"></i>VQA Audit Log (7 Defects)
+          </button>
+          <button onclick="switchTab('device')" id="nav-device" class="nav-tab px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all">
+            <i class="fa-solid fa-mobile-screen mr-1.5"></i>Device
+          </button>
+          <button onclick="openModal('arch-modal')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white shadow-xs transition-colors ml-1">
+            <i class="fa-solid fa-diagram-project mr-1.5"></i>Process Architecture
+          </button>
+        </div>
       </div>
     </header>
 
-    <!-- Velocity & Release Readiness Progress Bar -->
-    <section class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-3">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs">
-        <span class="font-bold text-slate-900 uppercase tracking-wider">Release Velocity &amp; Completion</span>
-        <span id="velocity-label" class="font-mono font-semibold text-slate-600">Calculating...</span>
-      </div>
-      <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden flex">
-        <div id="progress-complete" class="bg-emerald-600 h-full transition-all duration-500" style="width: 0%"></div>
-        <div id="progress-progress" class="bg-amber-500 h-full transition-all duration-500" style="width: 0%"></div>
-        <div id="progress-pending" class="bg-slate-200 h-full transition-all duration-500" style="width: 100%"></div>
-      </div>
-      <div class="flex items-center gap-4 text-xs font-medium text-slate-500 pt-1">
-        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span> Complete</span>
-        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> In Progress</span>
-        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span> Pending</span>
-      </div>
-    </section>
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto w-full p-4 lg:p-8 flex-1 space-y-6">
 
-    <!-- GUI Admin Form (Add / Edit) -->
-    <section id="admin-panel" class="hidden bg-white border border-emerald-300 rounded-2xl p-6 shadow-md transition-all">
-      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
-        <div>
-          <h3 id="form-title" class="text-sm font-bold text-slate-900">Add Sprint</h3>
-          <p class="text-xs text-slate-500">Configure scope, audit status, workstream tag, and detailed architectural notes.</p>
-        </div>
-        <button id="close-form-btn" class="text-slate-400 hover:text-slate-600 text-sm font-bold px-2 py-1">✕</button>
-      </div>
-
-      <form id="sprint-form" class="space-y-4 pt-4">
-        <input type="hidden" id="edit-index" value="-1" />
-
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Sprint ID</label>
-            <input type="text" id="sprint-id" placeholder="sprint-6" required class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-700 font-mono" />
+      <!-- ================= TAB 1: SPRINT ROADMAP ================= -->
+      <div id="tab-roadmap" class="tab-pane space-y-6">
+        
+        <!-- Hero Mission Statement -->
+        <section class="bg-gradient-to-br from-[#064e3b] to-[#043427] text-white rounded-3xl p-6 lg:p-8 shadow-sm space-y-6">
+          <div class="max-w-3xl space-y-2">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-800/80 text-emerald-200 border border-emerald-700/60 uppercase tracking-wider">
+              <i class="fa-solid fa-crosshairs text-emerald-300"></i> Executive Overview &amp; Mission Purpose
+            </span>
+            <h1 class="text-2xl sm:text-3xl font-black tracking-tight leading-snug">
+              Single-Source Truth for Food Transparency &amp; Agentic Development
+            </h1>
+            <p class="text-sm text-emerald-100/90 leading-relaxed">
+              This dashboard serves as the central operational hub for <strong>TrueHarvest</strong>. It bridges two distinct objectives: delivering a high-purity in-store grocery co-pilot that cuts through food greenwashing, and demonstrating a strict, production-grade <strong>Human-in-the-Loop Agentic Engineering Lifecycle</strong>.
+            </p>
           </div>
 
-          <div class="md:col-span-2">
-            <label class="block text-xs font-bold text-slate-700 mb-1">Sprint Name &amp; Scope</label>
-            <input type="text" id="sprint-name" placeholder="Sprint 6: Live Barcode Camera Scanner" required class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-700" />
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+            <div class="bg-emerald-900/60 border border-emerald-700/50 rounded-2xl p-4 space-y-1.5">
+              <div class="flex items-center gap-2 text-emerald-300 text-xs font-bold uppercase tracking-wider">
+                <i class="fa-solid fa-basket-shopping"></i> Consumer Product Mission
+              </div>
+              <p class="text-xs text-emerald-100/80 leading-relaxed">
+                Empower shoppers holding a basket with one-hand barcode scan, uncover conglomerate ownership (JBS, Tyson), and swap to certified ROC / pasture-based foods.
+              </p>
+            </div>
+            <div class="bg-emerald-900/60 border border-emerald-700/50 rounded-2xl p-4 space-y-1.5">
+              <div class="flex items-center gap-2 text-emerald-300 text-xs font-bold uppercase tracking-wider">
+                <i class="fa-solid fa-eye"></i> Multimodal VQA Verification
+              </div>
+              <p class="text-xs text-emerald-100/80 leading-relaxed">
+                Eliminate subjective "vibe-coding". Screen recordings are audited against a formal design specification by Gemini 3.8 Flash, catching visual regressions automated unit tests miss.
+              </p>
+            </div>
+            <div class="bg-emerald-900/60 border border-emerald-700/50 rounded-2xl p-4 space-y-1.5">
+              <div class="flex items-center gap-2 text-emerald-300 text-xs font-bold uppercase tracking-wider">
+                <i class="fa-solid fa-shield-check"></i> Zero-Trust Architecture
+              </div>
+              <p class="text-xs text-emerald-100/80 leading-relaxed">
+                Showcase an enterprise-safe hybrid workflow: AI generates review branches locally with zero API key exposure, followed by mandatory human PR review before production deployment.
+              </p>
+            </div>
           </div>
+        </section>
 
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Workstream</label>
-            <select id="sprint-workstream" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-700 bg-white">
-              <option value="core">Core Features</option>
-              <option value="remediation">Remediation &amp; VQA</option>
-              <option value="infrastructure">Infrastructure</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Pipeline Status</label>
-            <select id="sprint-status" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-700 bg-white">
-              <option value="Complete">Complete</option>
-              <option value="In Progress" selected>In Progress</option>
-              <option value="Pending">Pending</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">VQA Audit Result</label>
-            <select id="sprint-vqa" class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-700 bg-white">
-              <option value="PASS">PASS</option>
-              <option value="FAIL (Audit)">FAIL (Audit)</option>
-              <option value="PENDING" selected>PENDING</option>
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">Sprint Details &amp; Architectural Notes</label>
-          <textarea id="sprint-details" rows="3" placeholder="Enter sprint details, VQA defect root causes, PR links, or implementation decisions..." class="w-full p-3 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-700 leading-relaxed"></textarea>
-        </div>
-
-        <div class="flex items-center justify-between pt-2">
-          <button type="button" id="reset-defaults-btn" class="text-xs font-semibold text-slate-400 hover:text-slate-700 transition-colors">
-            Reset to Original Sprints
-          </button>
-          <div class="flex items-center gap-2">
-            <button type="button" id="cancel-form-btn" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 transition-colors">
-              Cancel
-            </button>
-            <button type="submit" class="px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-lg shadow-xs transition-colors">
-              Save Sprint
+        <!-- Delivery & VQA KPI Strip -->
+        <section class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 class="text-base font-bold text-slate-900">Sprint Delivery &amp; VQA Remediation Roadmap</h2>
+                <span class="px-2 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-800 font-mono">
+                  <i class="fa-solid fa-triangle-exclamation mr-1"></i>VQA FAIL: Sprints 4 &amp; 5 Active
+                </span>
+              </div>
+              <p class="text-xs text-slate-500 mt-0.5">
+                Sprints 1-3 established foundational components on disk. Sprints 4 and 5 systematically resolve all 7 multimodal VQA regressions (safe-area clearance, 44px collapsible drawer, embedded 32px barcode trigger, and 3-tier brand cards).
+              </p>
+            </div>
+            <button onclick="switchTab('gantt')" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 shrink-0">
+              <i class="fa-regular fa-calendar"></i> View Schedule &amp; Delays &rarr;
             </button>
           </div>
-        </div>
-      </form>
-    </section>
 
-    <!-- Metrics Summary -->
-    <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-        <div class="text-xs font-semibold text-slate-500">Tracked Sprints</div>
-        <div id="metric-total-sprints" class="text-2xl font-black text-slate-900 mt-1">5</div>
-        <div class="text-xs text-emerald-700 font-medium mt-1">Live from Browser GUI</div>
-      </div>
-      <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-        <div class="text-xs font-semibold text-slate-500">VQA Remediation</div>
-        <div class="text-2xl font-black text-emerald-700 mt-1">7 / 7 Fixed</div>
-        <div class="text-xs text-slate-500 font-medium mt-1">Card inception &amp; fold blowout</div>
-      </div>
-      <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-        <div class="text-xs font-semibold text-slate-500">Engineering Paradigm</div>
-        <div class="text-2xl font-black text-slate-900 mt-1">Hybrid</div>
-        <div class="text-xs text-slate-500 font-medium mt-1">Human-in-the-Loop Git Review</div>
-      </div>
-      <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-        <div class="text-xs font-semibold text-slate-500">Current Phase</div>
-        <div class="text-2xl font-black text-slate-900 mt-1">Audit PASS</div>
-        <div class="text-xs text-emerald-700 font-medium mt-1">Production Candidate</div>
-      </div>
-    </section>
-
-    <!-- Active Risks & Blockers Registry -->
-    <section class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-4">
-      <div class="flex items-center justify-between">
-        <div>
-          <h2 class="text-base font-bold text-slate-900">Program Risks &amp; Technical Blockers</h2>
-          <p class="text-xs text-slate-500">Active gates requiring PM review or automated workflow remediation.</p>
-        </div>
-        <span class="px-2.5 py-1 bg-amber-50 text-amber-800 text-xs font-bold rounded-lg border border-amber-200">
-          1 Actionable
-        </span>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
-        <div class="p-4 border border-amber-200 bg-amber-50/40 rounded-xl space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-amber-900">GitHub Pages Automated Deploy</span>
-            <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-200 text-amber-900">Medium Severity</span>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+              <span class="text-xs text-slate-500 font-medium">Pipeline Velocity</span>
+              <div class="text-2xl font-black text-slate-900 mt-1">46%</div>
+              <span class="text-[11px] text-slate-500">6/13 deliverables verified</span>
+            </div>
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+              <span class="text-xs text-slate-500 font-medium">Execution Schedule</span>
+              <div class="text-2xl font-black text-amber-700 mt-1">+2.5 Days</div>
+              <span class="text-[11px] text-amber-700 font-medium">Variance due to VQA audit loop</span>
+            </div>
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+              <span class="text-xs text-slate-500 font-medium">Active Sprint</span>
+              <div class="text-2xl font-black text-emerald-700 mt-1">Sprint 4</div>
+              <span class="text-[11px] text-slate-500">Viewports &amp; In-Store Ergonomics</span>
+            </div>
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+              <span class="text-xs text-slate-500 font-medium">VQA Compliance Status</span>
+              <div class="text-2xl font-black text-amber-600 mt-1">Remediating</div>
+              <span class="text-[11px] text-slate-500">4 Critical · 5 Major · 3 Minor</span>
+            </div>
           </div>
-          <p class="text-xs text-slate-600 leading-relaxed">
-            Deployment workflow exited with non-zero status. Need to ensure base path in <code>vite.config.ts</code> matches repository name (<code>/trueharvest-app/</code>).
-          </p>
-          <div class="text-xs font-semibold text-amber-800 pt-1">Action: Update Vite base path and push to main</div>
-        </div>
 
-        <div class="p-4 border border-emerald-200 bg-emerald-50/40 rounded-xl space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-emerald-950">Multimodal VQA Layout Regressions</span>
-            <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-200 text-emerald-900">Resolved (S4 &amp; S5)</span>
+          <!-- 5-Sprint Horizontal Track -->
+          <div class="space-y-2 pt-2">
+            <span class="text-[11px] font-bold uppercase text-slate-400 tracking-wider">Full 5-Sprint Delivery Roadmap</span>
+            <div class="grid grid-cols-1 sm:grid-cols-5 gap-2">
+              <div class="p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/70 text-xs">
+                <span class="font-bold text-emerald-950 block">Sprint 1</span>
+                <span class="text-[11px] text-emerald-800 truncate block">Design System &amp; Header</span>
+                <span class="text-[10px] text-emerald-600 font-mono">STATUS: OK (Oct 18-20)</span>
+              </div>
+              <div class="p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/70 text-xs">
+                <span class="font-bold text-emerald-950 block">Sprint 2</span>
+                <span class="text-[11px] text-emerald-800 truncate block">Aisle Controls &amp; Swaps</span>
+                <span class="text-[10px] text-emerald-600 font-mono">AisleControls, SwapCard</span>
+              </div>
+              <div class="p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/70 text-xs">
+                <span class="font-bold text-emerald-950 block">Sprint 3</span>
+                <span class="text-[11px] text-emerald-800 truncate block">Basket &amp; Directory</span>
+                <span class="text-[10px] text-emerald-600 font-mono">BasketOptimizer, Directory</span>
+              </div>
+              <div class="p-2.5 rounded-xl border-2 border-emerald-600 bg-white shadow-xs text-xs">
+                <div class="flex items-center justify-between">
+                  <span class="font-black text-emerald-900 block">Sprint 4</span>
+                  <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800">In Execution</span>
+                </div>
+                <span class="text-[11px] font-semibold text-slate-800 truncate block">VQA In-Aisle Ergonomics</span>
+                <span class="text-[10px] text-slate-500 font-mono">Drawer, 32px Barcode, SVG Gauges</span>
+              </div>
+              <div class="p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs opacity-70">
+                <span class="font-bold text-slate-900 block">Sprint 5</span>
+                <span class="text-[11px] text-slate-600 truncate block">Transparency &amp; Viewport</span>
+                <span class="text-[10px] text-slate-400 font-mono">PriceDeltaCard, BrandCard, CSS</span>
+              </div>
+            </div>
           </div>
-          <p class="text-xs text-slate-600 leading-relaxed">
-            7 visual defects (420px fold blowout, card inception, $0.0B sales bug) verified and closed via targeted remediation sprints.
+        </section>
+
+        <!-- 3-Column Workstream Board -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- Column 1: Sprint 5 Backlog -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Sprint 5: Backlog (Planned)</h3>
+              </div>
+              <span class="text-xs font-mono text-slate-400">3 Tasks</span>
+            </div>
+
+            <div class="space-y-3">
+              <div class="p-3.5 border border-slate-200 rounded-xl bg-slate-50/50 space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-slate-900">Price Delta Transparency Card</span>
+                  <span class="text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">Major #5</span>
+                </div>
+                <p class="text-xs text-slate-500 leading-relaxed">
+                  Explicit delta approval: +$4.20 (+12%) vs CAFO baseline with fair share breakdown.
+                </p>
+                <div class="text-[10px] font-mono text-slate-400 pt-1">Scheduled for prompt s5p1</div>
+              </div>
+
+              <div class="p-3.5 border border-slate-200 rounded-xl bg-slate-50/50 space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-slate-900">3-Tier Brand Card &amp; $0.0B Math Fix</span>
+                  <span class="text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">Major #4</span>
+                </div>
+                <p class="text-xs text-slate-500 leading-relaxed">
+                  Eliminates entity clutter, resolves revenue formatting bug millions showing $0.0B, max 2 badges.
+                </p>
+                <div class="text-[10px] font-mono text-slate-400 pt-1">Scheduled for prompt s5p2</div>
+              </div>
+
+              <div class="p-3.5 border border-slate-200 rounded-xl bg-slate-50/50 space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-slate-900">393px Overflow Guard &amp; Typography Audit</span>
+                  <span class="text-[10px] font-bold text-red-700 bg-red-100 px-1.5 py-0.5 rounded">Critical #3</span>
+                </div>
+                <p class="text-xs text-slate-500 leading-relaxed">
+                  Global CSS guard against horizontal scroll, WCAG AA contrast on stone-400, &lt;12px micro-typography fixes.
+                </p>
+                <div class="text-[10px] font-mono text-slate-400 pt-1">Scheduled for prompt s5p3</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 2: Active Sprint 4 Remediation -->
+          <div class="bg-white border-2 border-emerald-500 rounded-2xl p-5 shadow-xs space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-950">Active: Sprint 4 Remediation</h3>
+              </div>
+              <span class="text-xs font-bold text-emerald-700 font-mono">4 Tasks</span>
+            </div>
+
+            <div class="space-y-3">
+              <div class="p-3.5 border border-emerald-100 rounded-xl bg-emerald-50/40 space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-slate-900">Safe-Zone Clearance &amp; Top Nav Standard</span>
+                  <span class="text-[10px] font-bold text-red-700 bg-red-100 px-1.5 py-0.5 rounded">Critical #1</span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                  Adds pt-[max(env(safe-area-inset-top),12px)] Dynamic Island clearance and non-truncating pills.
+                </p>
+                <div class="text-[10px] font-mono text-emerald-700 pt-1"><i class="fa-solid fa-circle-check mr-1"></i>Active in terminal runner</div>
+              </div>
+
+              <div class="p-3.5 border border-emerald-100 rounded-xl bg-emerald-50/40 space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-slate-900">44px Default Collapsible Standards Drawer</span>
+                  <span class="text-[10px] font-bold text-red-700 bg-red-100 px-1.5 py-0.5 rounded">Critical #2</span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                  Replaces 420px banner with 44px accordion, freeing primary scanning fold.
+                </p>
+                <div class="text-[10px] font-mono text-emerald-700 pt-1"><i class="fa-solid fa-circle-check mr-1"></i>Active in terminal runner</div>
+              </div>
+
+              <div class="p-3.5 border border-emerald-100 rounded-xl bg-emerald-50/40 space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-slate-900">Integrated Search Dock &amp; 32px Mini Barcode</span>
+                  <span class="text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">Major #3</span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                  Embeds 32px scan trigger directly inside the search dock and quick clear 'X'.
+                </p>
+                <div class="text-[10px] font-mono text-emerald-700 pt-1"><i class="fa-solid fa-circle-check mr-1"></i>Active in terminal runner</div>
+              </div>
+
+              <div class="p-3.5 border border-emerald-100 rounded-xl bg-emerald-50/40 space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-slate-900">Un-nested Product Swap Card &amp; SVG Gauges</span>
+                  <span class="text-[10px] font-bold text-red-700 bg-red-100 px-1.5 py-0.5 rounded">Critical #4</span>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                  Eliminates nested colored boxes; renders 28 vs 94 circular numerical score gauges.
+                </p>
+                <div class="text-[10px] font-mono text-emerald-700 pt-1"><i class="fa-solid fa-circle-check mr-1"></i>Active in terminal runner</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 3: Verified On Disk (Sprints 1-3) -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Verified on Disk (Sprints 1-3)</h3>
+              </div>
+              <span class="text-xs font-mono text-emerald-700 font-bold">6 Shipped</span>
+            </div>
+
+            <div class="space-y-3 font-mono text-xs">
+              <div class="p-3 border border-slate-200 rounded-xl bg-slate-50/60 space-y-1">
+                <div class="flex items-center justify-between text-slate-900 font-bold">
+                  <span>S1P1: Status Tokens</span>
+                  <span class="text-emerald-600">✔</span>
+                </div>
+                <div class="text-[11px] text-slate-500 font-sans">DesignTokens &amp; StatusBadge.tsx</div>
+                <div class="text-[10px] text-slate-400">3,376 bytes written to disk</div>
+              </div>
+
+              <div class="p-3 border border-slate-200 rounded-xl bg-slate-50/60 space-y-1">
+                <div class="flex items-center justify-between text-slate-900 font-bold">
+                  <span>S1P2: Header</span>
+                  <span class="text-emerald-600">✔</span>
+                </div>
+                <div class="text-[11px] text-slate-500 font-sans">Header Shell &amp; Nav Architecture</div>
+                <div class="text-[10px] text-slate-400">Written to output/src/components</div>
+              </div>
+
+              <div class="p-3 border border-slate-200 rounded-xl bg-slate-50/60 space-y-1">
+                <div class="flex items-center justify-between text-slate-900 font-bold">
+                  <span>S2P1: Controls</span>
+                  <span class="text-emerald-600">✔</span>
+                </div>
+                <div class="text-[11px] text-slate-500 font-sans">AisleCheckerControls Scaffolding</div>
+                <div class="text-[10px] text-slate-400">Written to output/src/components</div>
+              </div>
+
+              <div class="p-3 border border-slate-200 rounded-xl bg-slate-50/60 space-y-1">
+                <div class="flex items-center justify-between text-slate-900 font-bold">
+                  <span>S2P2: Swap Card</span>
+                  <span class="text-emerald-600">✔</span>
+                </div>
+                <div class="text-[11px] text-slate-500 font-sans">ProductSwapCard Initial Implementation</div>
+                <div class="text-[10px] text-slate-400">Written to output/src/components</div>
+              </div>
+
+              <div class="p-3 border border-slate-200 rounded-xl bg-slate-50/60 space-y-1">
+                <div class="flex items-center justify-between text-slate-900 font-bold">
+                  <span>S3P1: Basket</span>
+                  <span class="text-emerald-600">✔</span>
+                </div>
+                <div class="text-[11px] text-slate-500 font-sans">BasketOptimizer Component</div>
+                <div class="text-[10px] text-slate-400">Written to output/src/components</div>
+              </div>
+
+              <div class="p-3 border border-slate-200 rounded-xl bg-slate-50/60 space-y-1">
+                <div class="flex items-center justify-between text-slate-900 font-bold">
+                  <span>S3P2: Directory</span>
+                  <span class="text-emerald-600">✔</span>
+                </div>
+                <div class="text-[11px] text-slate-500 font-sans">BrandDirectory Component</div>
+                <div class="text-[10px] text-slate-400">Written to output/src/components</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- LinkedIn Build-in-Public Post Copy Block -->
+        <section class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i class="fa-brands fa-linkedin text-blue-600 text-lg"></i>
+              <h2 class="text-base font-bold text-slate-900">LinkedIn Build-in-Public Post Copy (Live-Updated)</h2>
+            </div>
+            <button onclick="copyPostText()" id="copy-post-btn" class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-2">
+              <i class="fa-regular fa-copy"></i> Copy Post Text
+            </button>
+          </div>
+          <p class="text-xs text-slate-500">Telling the authentic story of running multimodal VQA to catch regressions and automating the fix.</p>
+          
+          <div id="linkedin-post-content" class="bg-slate-50 border border-slate-200 rounded-xl p-5 text-xs text-slate-700 font-mono leading-relaxed whitespace-pre-line select-all">
+Buildings in public update: Why we ran a Visual QA (VQA) audit on our food transparency co-pilot, and what happened when it failed.
+
+A few days ago, I shared the initial concept for TrueHarvest—an in-store grocery co-pilot built to cut through grocery aisle greenwashing and verify conglomerate ownership with a single scan.
+
+After finishing the first three sprints (design tokens, navigation, initial swap cards, and directory), I could have declared victory. The code compiled, the database was rich, and the UI worked.
+
+Instead, I decided to test our frontend with an autonomous Multimodal Visual QA (VQA) audit using Gemini in AI Studio, evaluating our screen recordings against our production design specification.
+
+THE AUDIT VERDICT: FAIL.
+
+The multimodal inspector caught several major UX regressions that a simple unit test would never catch:
+• An uncollapsed standards banner was taking up 60% of the primary fold, pushing the scanner below the fold.
+• "Card inception": colored bordered boxes nested inside other colored bordered boxes.
+• A revenue formatting bug displaying $12M brand sales as "$0.0B".
+• Missing 393px safe-area top clearance on modern phone hardware cutouts.
+
+Instead of hand-patching each bug, we translated the VQA audit findings directly into a structured remediation roadmap:
+— Sprint 4: in-store ergonomics (44px collapsible drawer, embedded 32px mini barcode trigger, un-nested swap card with circular score gauges).
+— Sprint 5: price delta transparency cards, 3-tier brand directory architecture, and 393px horizontal overflow guards.
+
+This is the real power of modern AI-assisted workflows: not chaotic "vibe coding", but systematic verification where multimodal models audit the visual outputs, and modular sprints execute the fixes directly to disk.
+
+Track the live interactive prototype and sprint status here: [Insert Live Demo Link]
+
+If you're building with multimodal models or thinking about automated UI testing, I'd love your candid thoughts!
+
+#BuildInPublic #SoftwareEngineering #VisualQA #DesignSystems #AIAssistedDev #FrontendEngineering #OpenToWork
+          </div>
+        </section>
+
+      </div>
+
+      <!-- ================= TAB 2: GANTT CHART & TIMELINE ================= -->
+      <div id="tab-gantt" class="tab-pane hidden space-y-6">
+        <section class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-6">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800 uppercase font-mono">10-Day Horizon</span>
+              <span class="text-xs text-slate-400">Oct 18 – Oct 27, 2026</span>
+            </div>
+            <h2 class="text-xl font-black text-slate-900 mt-1">Project Gantt Chart &amp; Schedule Variance</h2>
+            <p class="text-xs text-slate-500">Autonomous sprint delivery at TrueHarvest against Actual/Adjusted Schedule showing the 2.5-day remediation cycle introduced by Multimodal VQA Audit findings.</p>
+          </div>
+
+          <!-- Milestones Card Strip -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+            <div class="p-4 border border-slate-200 rounded-xl bg-slate-50 space-y-1">
+              <span class="text-xs text-slate-500">Original Target Date</span>
+              <div class="text-lg font-black text-slate-900">Oct 23, 2026</div>
+              <span class="text-[11px] text-slate-400">Pre-VQA Audit Target</span>
+            </div>
+            <div class="p-4 border border-amber-200 rounded-xl bg-amber-50/60 space-y-1">
+              <span class="text-xs text-amber-800 font-semibold">Schedule Variance</span>
+              <div class="text-lg font-black text-amber-700">+2.5 Calendar Days</div>
+              <span class="text-[11px] text-amber-700">Added Sprints 4 &amp; 5 to remediate 7 defects</span>
+            </div>
+            <div class="p-4 border border-emerald-200 rounded-xl bg-emerald-50/60 space-y-1">
+              <span class="text-xs text-emerald-800 font-semibold">New Target Production Release</span>
+              <div class="text-lg font-black text-emerald-800">Oct 26, 2026</div>
+              <span class="text-[11px] text-emerald-700">100% VQA Compliant Gate</span>
+            </div>
+          </div>
+
+          <!-- Horizontal Schedule Bars -->
+          <div class="space-y-4 pt-4 border-t border-slate-100">
+            <div class="flex justify-between text-xs font-mono text-slate-400 border-b border-slate-100 pb-2">
+              <span class="w-1/3">Milestone / Sprint</span>
+              <span class="text-center">Oct 19</span>
+              <span class="text-center">Oct 20</span>
+              <span class="text-center">Oct 21</span>
+              <span class="text-center">Oct 22</span>
+              <span class="text-center font-bold text-emerald-700">Today (23)</span>
+              <span class="text-center">Oct 24</span>
+              <span class="text-center">Oct 25</span>
+              <span class="text-center">Oct 26</span>
+            </div>
+
+            <!-- S1 -->
+            <div class="space-y-1">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-bold text-slate-900">Sprint 1: Tokens &amp; Header Navigation</span>
+                <span class="text-[11px] font-mono text-emerald-700 font-semibold">On Schedule (Oct 18–20)</span>
+              </div>
+              <div class="w-full bg-slate-100 h-6 rounded-lg overflow-hidden flex items-center p-1">
+                <div class="bg-emerald-600 h-4 rounded text-[10px] text-white font-bold flex items-center px-2" style="width: 30%">
+                  Shipped (Oct 18–20)
+                </div>
+              </div>
+            </div>
+
+            <!-- S2 -->
+            <div class="space-y-1">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-bold text-slate-900">Sprint 2: Aisle Controls &amp; Swaps</span>
+                <span class="text-[11px] font-mono text-emerald-700 font-semibold">On Schedule (Oct 20–21)</span>
+              </div>
+              <div class="w-full bg-slate-100 h-6 rounded-lg overflow-hidden flex items-center p-1">
+                <div class="h-4 rounded" style="width: 25%"></div>
+                <div class="bg-emerald-600 h-4 rounded text-[10px] text-white font-bold flex items-center px-2" style="width: 25%">
+                  Shipped (Oct 20–21)
+                </div>
+              </div>
+            </div>
+
+            <!-- S3 -->
+            <div class="space-y-1">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-bold text-slate-900">Sprint 3: Basket Optimizer &amp; Directory</span>
+                <span class="text-[11px] font-mono text-emerald-700 font-semibold">On Schedule (Oct 21–22)</span>
+              </div>
+              <div class="w-full bg-slate-100 h-6 rounded-lg overflow-hidden flex items-center p-1">
+                <div class="h-4 rounded" style="width: 45%"></div>
+                <div class="bg-emerald-600 h-4 rounded text-[10px] text-white font-bold flex items-center px-2" style="width: 25%">
+                  Shipped (Oct 21–22)
+                </div>
+              </div>
+            </div>
+
+            <!-- VQA Gate -->
+            <div class="p-3 bg-red-50 border border-red-200 rounded-xl space-y-1 my-3">
+              <div class="flex items-center justify-between text-xs font-bold text-red-800">
+                <span>🚨 Milestone: Multimodal VQA Inspection Gate</span>
+                <span class="font-mono bg-red-200 text-red-900 px-2 py-0.5 rounded text-[10px]">VERDICT: FAIL (7 Regressions Caught)</span>
+              </div>
+              <p class="text-[11px] text-slate-600">
+                Inspection on Oct 22 revealed critical blockers: 420px uncollapsed standards drawer, detached camera trigger, and card inception. Triggered remediation pivot.
+              </p>
+            </div>
+
+            <!-- S4 -->
+            <div class="space-y-1">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-bold text-slate-900">Sprint 4: VQA Ergonomics Remediation</span>
+                <span class="text-[11px] font-mono text-amber-700 font-bold">+1.5 Days Added (Oct 23–24)</span>
+              </div>
+              <div class="w-full bg-slate-100 h-6 rounded-lg overflow-hidden flex items-center p-1">
+                <div class="h-4 rounded" style="width: 60%"></div>
+                <div class="bg-amber-500 h-4 rounded text-[10px] text-white font-bold flex items-center px-2 animate-pulse" style="width: 25%">
+                  Active Execution
+                </div>
+              </div>
+            </div>
+
+            <!-- S5 -->
+            <div class="space-y-1">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-bold text-slate-900">Sprint 5: Transparency &amp; Viewport Guard</span>
+                <span class="text-[11px] font-mono text-slate-500 font-semibold">+1.0 Day Added (Oct 25–26)</span>
+              </div>
+              <div class="w-full bg-slate-100 h-6 rounded-lg overflow-hidden flex items-center p-1">
+                <div class="h-4 rounded" style="width: 80%"></div>
+                <div class="bg-slate-300 h-4 rounded text-[10px] text-slate-700 font-bold flex items-center px-2" style="width: 20%">
+                  Planned Remediation
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Why the 2.5 Day Delay is Strategic Win -->
+          <div class="border border-emerald-200 bg-emerald-50/40 rounded-2xl p-5 space-y-3">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-950">Why the 2.5-Day Delay is a Strategic Win</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+              <div class="space-y-1">
+                <strong class="text-slate-900 block">Without Multimodal VQA:</strong>
+                <p class="text-slate-600 leading-relaxed">
+                  TrueHarvest would have released on Oct 23 on schedule, but users in grocery store aisles holding physical shopping baskets would have encountered a blocked viewport, broken camera scanning, and confusing nested cards.
+                </p>
+              </div>
+              <div class="space-y-1">
+                <strong class="text-emerald-900 block">With Autonomous Remediation:</strong>
+                <p class="text-slate-600 leading-relaxed">
+                  The 2.5-day adjustment caught and remediated all 7 defects automatically. Sprints 4 &amp; 5 deliver 44px collapsible ergonomics and verified zero-leak viewports before public distribution.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- ================= TAB 3: VQA AUDIT LOG ================= -->
+      <div id="tab-vqa" class="tab-pane hidden space-y-6">
+        <section class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-800 font-mono">AUDIT VERDICT: FAIL</span>
+                <h2 class="text-base font-bold text-slate-900">Multimodal VQA Audit Log (Gemini 3.8 / Pro)</h2>
+              </div>
+              <p class="text-xs text-slate-500 mt-0.5">Automated screen recording inspection. Evaluated against in-store ergonomics targets. All defects tracked and assigned to Sprints 4 &amp; 5.</p>
+            </div>
+            <button onclick="switchTab('device')" class="px-3.5 py-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold hover:bg-emerald-100 transition-colors">
+              <i class="fa-solid fa-mobile-screen mr-1"></i> View Sprint Board
+            </button>
+          </div>
+
+          <!-- 3 Categories Strip -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="p-4 border border-red-200 bg-red-50/40 rounded-xl space-y-1">
+              <div class="text-xs font-bold text-red-800 uppercase">Critical Blockers (4)</div>
+              <div class="text-2xl font-black text-red-700">4 Deficiencies</div>
+              <p class="text-[11px] text-slate-600">Hardware clearance, fold priority, overflow blowout, swap card inception.</p>
+            </div>
+            <div class="p-4 border border-amber-200 bg-amber-50/40 rounded-xl space-y-1">
+              <div class="text-xs font-bold text-amber-800 uppercase">Major Violations (5)</div>
+              <div class="text-2xl font-black text-amber-700">5 Deficiencies</div>
+              <p class="text-[11px] text-slate-600">Card inception, gauges detached, scanner, $0.0B bug, delta card.</p>
+            </div>
+            <div class="p-4 border border-slate-200 bg-slate-50 rounded-xl space-y-1">
+              <div class="text-xs font-bold text-slate-700 uppercase">Minor Typography (3)</div>
+              <div class="text-2xl font-black text-slate-800">3 Polish Items</div>
+              <p class="text-[11px] text-slate-600">Sub-12px micro-copy, stone-400 contrast, duplicate nav text.</p>
+            </div>
+          </div>
+
+          <!-- Defect Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="border-b border-slate-200 text-slate-500 uppercase font-bold">
+                  <th class="py-2.5 px-3">Defect Remediation Matrix</th>
+                  <th class="py-2.5 px-3 text-right">Spec Target: v1.0.0-PR93</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr class="hover:bg-slate-50">
+                  <td class="py-3 px-3">
+                    <span class="text-red-700 font-bold uppercase">CRITICAL #1: Missing Dynamic Island / Notch Hardware Clearance</span>
+                    <p class="text-slate-600 mt-0.5">Header lacks pt-[max(env(safe-area-inset-top),12px)]. Brand bar encroaches with iPhone 16 Pro Dynamic Island.</p>
+                  </td>
+                  <td class="py-3 px-3 text-right font-mono text-emerald-700 font-bold">
+                    Sprint 4 &bull; S4P1 <span class="ml-2 px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px]">In Progress</span>
+                  </td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="py-3 px-3">
+                    <span class="text-red-700 font-bold uppercase">CRITICAL #2: Uncollapsed Standards Drawer Pushing Scanner Below Fold</span>
+                    <p class="text-slate-600 mt-0.5">420px banner consumes 65% of screen. Must default to 44px accordion with 36px chevron toggle.</p>
+                  </td>
+                  <td class="py-3 px-3 text-right font-mono text-emerald-700 font-bold">
+                    Sprint 4 &bull; S4P2 <span class="ml-2 px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px]">In Progress</span>
+                  </td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="py-3 px-3">
+                    <span class="text-amber-700 font-bold uppercase">MAJOR #3: De-integrated Searchdock &amp; Detached Camera Trigger</span>
+                    <p class="text-slate-600 mt-0.5">Search dock disconnects barcode scanner. Needs embedded 32px barcode button and quick clear 'x'.</p>
+                  </td>
+                  <td class="py-3 px-3 text-right font-mono text-emerald-700 font-bold">
+                    Sprint 4 &bull; S4P3 <span class="ml-2 px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px]">In Progress</span>
+                  </td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="py-3 px-3">
+                    <span class="text-red-700 font-bold uppercase">CRITICAL #4: Missing Product Swap Card &amp; Nested 'Card Inception'</span>
+                    <p class="text-slate-600 mt-0.5">Eliminate colored border boxes inside parent container. Render circular score gauges.</p>
+                  </td>
+                  <td class="py-3 px-3 text-right font-mono text-emerald-700 font-bold">
+                    Sprint 4 &bull; S4P4 <span class="ml-2 px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px]">In Progress</span>
+                  </td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="py-3 px-3">
+                    <span class="text-amber-700 font-bold uppercase">MAJOR #5: Missing Explicit Price Delta Transparency Card</span>
+                    <p class="text-slate-600 mt-0.5">Basket displays charts but lacks the core card: +$4.20 (+12%) delta vs CAFO commodity baseline.</p>
+                  </td>
+                  <td class="py-3 px-3 text-right font-mono text-slate-500 font-bold">
+                    Sprint 5 &bull; S5P1 <span class="ml-2 px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px]">Planned</span>
+                  </td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="py-3 px-3">
+                    <span class="text-amber-700 font-bold uppercase">MAJOR #4: Brand Directory Card Architecture &amp; $0.0B Math Bug</span>
+                    <p class="text-slate-600 mt-0.5">Alexandre Family Farm $12M sales divided to $0.0B due to float division bug. Max 2 badges per card.</p>
+                  </td>
+                  <td class="py-3 px-3 text-right font-mono text-slate-500 font-bold">
+                    Sprint 5 &bull; S5P2 <span class="ml-2 px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px]">Planned</span>
+                  </td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="py-3 px-3">
+                    <span class="text-red-700 font-bold uppercase">CRITICAL #3: 393px Horizontal Viewport Leak &amp; Typography Pass</span>
+                    <p class="text-slate-600 mt-0.5">393px handset triggers horizontal screen blowout. Eliminate sub-12px micro-copy and stone-400 contrast issues.</p>
+                  </td>
+                  <td class="py-3 px-3 text-right font-mono text-slate-500 font-bold">
+                    Sprint 5 &bull; S5P3 <span class="ml-2 px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px]">Planned</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- ================= TAB 4: DEVICE SIMULATOR ================= -->
+      <div id="tab-device" class="tab-pane hidden space-y-6">
+        <section class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs flex flex-col items-center space-y-6">
+          <div class="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Viewport:</span>
+              <div class="inline-flex rounded-lg bg-slate-100 p-1">
+                <button onclick="setDeviceWidth('393px', this)" class="device-toggle px-3 py-1 text-xs font-bold rounded-md bg-white text-slate-900 shadow-xs">
+                  <i class="fa-solid fa-mobile-screen mr-1"></i> iPhone 16 Pro (393px)
+                </button>
+                <button onclick="setDeviceWidth('412px', this)" class="device-toggle px-3 py-1 text-xs font-medium text-slate-600 hover:text-slate-900">
+                  <i class="fa-brands fa-android mr-1"></i> Pixel 9 Pro (412px)
+                </button>
+                <button onclick="setDeviceWidth('100%', this)" class="device-toggle px-3 py-1 text-xs font-medium text-slate-600 hover:text-slate-900">
+                  <i class="fa-solid fa-desktop mr-1"></i> Desktop Responsive
+                </button>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 text-xs font-mono text-emerald-700">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              Live Spec v1.0.0
+            </div>
+          </div>
+
+          <!-- Phone Chassis Container -->
+          <div id="phone-wrapper" class="transition-all duration-300 w-full max-w-[393px] bg-slate-950 p-3 rounded-[48px] shadow-2xl border-4 border-slate-800">
+            <!-- Notch / Dynamic Island -->
+            <div class="w-28 h-4 bg-black rounded-full mx-auto mb-2"></div>
+            
+            <!-- Embedded Screen View -->
+            <div class="bg-slate-50 rounded-[36px] overflow-hidden border border-slate-800 min-h-[640px] max-h-[720px] overflow-y-auto no-scrollbar">
+              
+              <!-- Mini Header -->
+              <div class="bg-white border-b border-slate-200 px-4 pt-4 pb-2 sticky top-0 z-30">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-xs">🌱</div>
+                    <div>
+                      <div class="text-xs font-black text-slate-900 leading-tight">TrueHarvest</div>
+                      <div class="text-[10px] text-slate-500">Whole Foods · Santa Cruz</div>
+                    </div>
+                  </div>
+                  <div class="w-8 h-8 rounded-lg bg-emerald-700 text-white flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-barcode"></i>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-1 mt-2.5 overflow-x-auto no-scrollbar">
+                  <button class="px-2.5 py-1 rounded bg-emerald-700 text-white text-[11px] font-bold">Aisle Checker</button>
+                  <button class="px-2.5 py-1 rounded bg-slate-100 text-slate-600 text-[11px] font-medium">Basket Optimizer (7)</button>
+                  <button class="px-2.5 py-1 rounded bg-slate-100 text-slate-600 text-[11px] font-medium">Brand Directory</button>
+                </div>
+              </div>
+
+              <!-- Mini Body -->
+              <div class="p-3 space-y-3">
+                <!-- Collapsed Accordion (44px) -->
+                <div class="bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2 flex items-center justify-between text-xs cursor-pointer">
+                  <div class="flex items-center gap-1.5 font-bold text-emerald-950">
+                    <i class="fa-solid fa-shield-check text-emerald-700"></i>
+                    <span>Level 4: High Purity (80% Optimal Standard)</span>
+                  </div>
+                  <span class="text-[10px] font-bold text-emerald-700">Adjust &or;</span>
+                </div>
+
+                <!-- Mini Search Dock -->
+                <div class="relative">
+                  <input type="text" placeholder="Scan barcode or type brand (e.g. Kerrygold)..." class="w-full text-xs pl-8 pr-16 py-2 rounded-xl border border-slate-200 bg-white" />
+                  <i class="fa-solid fa-magnifying-glass text-slate-400 absolute left-2.5 top-3 text-[10px]"></i>
+                  <button class="absolute right-1 top-1 w-6 h-6 rounded bg-emerald-700 text-white flex items-center justify-center text-[10px]">
+                    <i class="fa-solid fa-barcode"></i>
+                  </button>
+                </div>
+
+                <!-- Chips -->
+                <div class="flex gap-1 overflow-x-auto no-scrollbar text-[10px]">
+                  <span class="px-2 py-1 bg-slate-100 rounded-lg text-slate-700 font-medium whitespace-nowrap">Quick</span>
+                  <span class="px-2 py-1 bg-slate-100 rounded-lg text-slate-700 font-medium whitespace-nowrap">Ground Beef</span>
+                  <span class="px-2 py-1 bg-slate-100 rounded-lg text-slate-700 font-medium whitespace-nowrap">Pasture Eggs</span>
+                  <span class="px-2 py-1 bg-slate-100 rounded-lg text-slate-700 font-medium whitespace-nowrap">Whole Milk</span>
+                </div>
+
+                <!-- Swap Card -->
+                <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
+                  <div class="p-3 bg-red-50/40 space-y-2 border-b border-slate-100">
+                    <div class="flex items-center justify-between">
+                      <span class="text-[10px] font-bold text-red-700 uppercase"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Avoid: Factory Farm Sourced</span>
+                      <span class="text-[10px] font-bold text-red-700 font-mono">1 Item Flagged</span>
+                    </div>
+                    <div class="flex justify-between items-start">
+                      <div>
+                        <div class="text-xs font-bold text-slate-900 leading-tight">Swift Premium 80/20 Ground Beef</div>
+                        <div class="text-[10px] text-amber-800 font-medium mt-0.5">Parent Conglomerate: JBS S.A. (Brazil)</div>
+                      </div>
+                      <div class="w-8 h-8 rounded-full border-2 border-red-300 bg-white text-red-700 font-black text-xs flex items-center justify-center shrink-0">
+                        28
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="p-3 bg-emerald-50/40 space-y-2.5">
+                    <div class="flex items-center justify-between">
+                      <span class="text-[10px] font-bold text-emerald-800 uppercase"><i class="fa-solid fa-shield-check mr-1"></i>ROC Gold &amp; 100% Grass-Fed</span>
+                      <span class="text-[10px] font-bold text-emerald-700 font-mono">Aisle 4 (Meat Case)</span>
+                    </div>
+                    <div class="flex justify-between items-start">
+                      <div>
+                        <div class="text-xs font-bold text-slate-900 leading-tight">100% Grass-Fed &amp; Finished Beef (85/15)</div>
+                        <div class="text-[10px] text-emerald-800 font-medium mt-0.5">White Oak Pastures · Bluffton, GA</div>
+                      </div>
+                      <div class="w-8 h-8 rounded-full border-2 border-emerald-600 bg-white text-emerald-700 font-black text-xs flex items-center justify-center shrink-0">
+                        94
+                      </div>
+                    </div>
+                    <button class="w-full py-2 bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs">
+                      Swap &amp; Add to Grocery Basket
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+    </main>
+
+    <!-- Process Architecture Modal -->
+    <div id="arch-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+      <div class="bg-white rounded-3xl max-w-4xl w-full p-6 lg:p-8 space-y-6 max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+          <div>
+            <h3 class="text-lg font-black text-slate-900">End-to-End Hybrid Architecture</h3>
+            <p class="text-xs text-slate-500">Autonomous App Development Pipeline: Manual Human Oversight + Automated Watcher &amp; CI/CD</p>
+          </div>
+          <button onclick="closeModal('arch-modal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold p-1">✕</button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
+          <div class="p-4 rounded-xl border border-amber-200 bg-amber-50/50 space-y-1.5">
+            <span class="text-[10px] font-bold text-amber-800 uppercase block">1. Manual</span>
+            <strong class="text-slate-900 block font-bold">9:00 AM Prompt</strong>
+            <p class="text-slate-600 leading-relaxed">Scheduled daily sprint prompt copied into AI Studio prompt runner.</p>
+          </div>
+          <div class="p-4 rounded-xl border border-amber-200 bg-amber-50/50 space-y-1.5">
+            <span class="text-[10px] font-bold text-amber-800 uppercase block">2. Manual</span>
+            <strong class="text-slate-900 block font-bold">AI Studio Run</strong>
+            <p class="text-slate-600 leading-relaxed">Engine generates code snippets and token rules via Gemini 3.8 Flash.</p>
+          </div>
+          <div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/50 space-y-1.5">
+            <span class="text-[10px] font-bold text-emerald-800 uppercase block">3. Automated</span>
+            <strong class="text-slate-900 block font-bold">File Watcher</strong>
+            <p class="text-slate-600 leading-relaxed">Watcher script detects zip drop, appends receipts, hot-reloads Vite.</p>
+          </div>
+          <div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/50 space-y-1.5">
+            <span class="text-[10px] font-bold text-emerald-800 uppercase block">4. Automated</span>
+            <strong class="text-slate-900 block font-bold">Branch &amp; Push</strong>
+            <p class="text-slate-600 leading-relaxed">Script auto-creates review branch, pre-renders audit screenshots.</p>
+          </div>
+          <div class="p-4 rounded-xl border border-amber-200 bg-amber-50/50 space-y-1.5">
+            <span class="text-[10px] font-bold text-amber-800 uppercase block">5. Manual</span>
+            <strong class="text-slate-900 block font-bold">PR Review Gate</strong>
+            <p class="text-slate-600 leading-relaxed">Human review confirms VQA compliance before merging to main branch.</p>
+          </div>
+        </div>
+
+        <div class="p-4 bg-slate-900 text-emerald-400 rounded-xl font-mono text-xs space-y-2">
+          <div class="flex items-center justify-between text-slate-400 text-[11px]">
+            <span>Process Simulation (Pixelbook Terminal @ GitHub Actions)</span>
+            <span class="text-emerald-400">● Live Simulation Ready</span>
+          </div>
+          <p class="text-slate-300">
+            System Ready. Click "Simulate Full Workflow" to inspect the manual vs automated sequence.
           </p>
-          <div class="text-xs font-semibold text-emerald-800 pt-1">Status: Passed audit verification</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Sprint Tracking Table with Workstream Filters -->
-    <section class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h2 class="text-base font-bold text-slate-900">Sprint Tracking &amp; Multimodal QA Receipts</h2>
-          <span class="text-xs font-mono text-slate-400">interactive storage active</span>
         </div>
 
-        <!-- Workstream Filter Tabs -->
-        <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl">
-          <button onclick="setFilter('all')" id="filter-all" class="filter-tab px-3 py-1 rounded-lg text-xs font-bold transition-colors bg-white text-slate-900 shadow-xs">
-            All
-          </button>
-          <button onclick="setFilter('core')" id="filter-core" class="filter-tab px-3 py-1 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 transition-colors">
-            Core
-          </button>
-          <button onclick="setFilter('remediation')" id="filter-remediation" class="filter-tab px-3 py-1 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 transition-colors">
-            Remediation
-          </button>
-          <button onclick="setFilter('active')" id="filter-active" class="filter-tab px-3 py-1 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 transition-colors">
-            In Flight
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+          <button onclick="closeModal('arch-modal')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-colors">
+            Close Walkthrough
           </button>
         </div>
       </div>
-
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm border-collapse">
-          <thead>
-            <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
-              <th class="py-2.5 px-4">Sprint &amp; Scope</th>
-              <th class="py-2.5 px-4">Workstream</th>
-              <th class="py-2.5 px-4">Pipeline Status</th>
-              <th class="py-2.5 px-4">VQA Multimodal Audit</th>
-              <th class="py-2.5 px-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="sprint-status-body"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- Technical Architecture & Environment Telemetry Bar -->
-    <footer class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs text-slate-500">
-      <div class="flex items-center gap-2 font-mono">
-        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-        <span>Environment: Pixelbook (Linux / penguin)</span>
-        <span class="text-slate-300">|</span>
-        <span>Node v20.x · Vite · React 18 · Tailwind</span>
-      </div>
-      <div class="flex items-center gap-4 font-medium">
-        <span>Repo: <a href="https://github.com/sulienroneill-bot/trueharvest-app" target="_blank" class="text-emerald-700 hover:underline">sulienroneill-bot/trueharvest-app</a></span>
-        <span class="text-slate-300">|</span>
-        <span>Target: GitHub Pages (/app.html)</span>
-      </div>
-    </footer>
+    </div>
 
   </div>
 
   <script>
-    const DEFAULT_SPRINTS = [
-      { 
-        id: 'sprint-1', 
-        name: 'Sprint 1: Token Engine & Hardware Scaffolding', 
-        workstream: 'core',
-        vqa: 'PASS', 
-        status: 'Complete',
-        details: 'Initial scaffold establishment: status tokens, base responsive shell, and typography definitions.'
-      },
-      { 
-        id: 'sprint-2', 
-        name: 'Sprint 2: Core Scanning & In-Aisle Swaps', 
-        workstream: 'core',
-        vqa: 'FAIL (Audit)', 
-        status: 'Complete',
-        details: 'Audit revealed nested card containers (card inception) and lack of circular score comparison gauges.'
-      },
-      { 
-        id: 'sprint-3', 
-        name: 'Sprint 3: Multi-Item Transparency & Cart', 
-        workstream: 'core',
-        vqa: 'FAIL (Audit)', 
-        status: 'Complete',
-        details: 'Failed audit due to 420px fold blowout from uncollapsed standards drawer and $0.0B sales calculation bug.'
-      },
-      { 
-        id: 'sprint-4', 
-        name: 'Sprint 4: In-Store Ergonomics Remediation', 
-        workstream: 'remediation',
-        vqa: 'PASS', 
-        status: 'Complete',
-        details: 'Remediated Dynamic Island safe area, reduced standards drawer to 44px accordion, embedded 32px barcode trigger.'
-      },
-      { 
-        id: 'sprint-5', 
-        name: 'Sprint 5: Layout Polish & Viewport Safeguards', 
-        workstream: 'remediation',
-        vqa: 'PASS', 
-        status: 'Complete',
-        details: 'Fixed $12M revenue formatting, added explicit price delta breakdown card, and enforced viewport width guards.'
-      },
-    ];
-
-    let currentFilter = 'all';
-
-    function getSprints() {
-      const stored = localStorage.getItem('trueharvest_sprints');
-      return stored ? JSON.parse(stored) : DEFAULT_SPRINTS;
-    }
-
-    function saveSprints(sprints) {
-      localStorage.setItem('trueharvest_sprints', JSON.stringify(sprints));
-      renderDashboard();
-    }
-
-    function updateVelocityBar(sprints) {
-      const total = sprints.length;
-      if (total === 0) return;
-
-      const completeCount = sprints.filter(s => s.status === 'Complete').length;
-      const progressCount = sprints.filter(s => s.status === 'In Progress').length;
-      const pendingCount = sprints.filter(s => s.status === 'Pending').length;
-
-      const completePct = Math.round((completeCount / total) * 100);
-      const progressPct = Math.round((progressCount / total) * 100);
-      const pendingPct = 100 - completePct - progressPct;
-
-      document.getElementById('progress-complete').style.width = completePct + '%';
-      document.getElementById('progress-progress').style.width = progressPct + '%';
-      document.getElementById('progress-pending').style.width = pendingPct + '%';
-
-      document.getElementById('velocity-label').innerText = 
-        `${completeCount} of ${total} Sprints Complete (${completePct}%)`;
-    }
-
-    window.setFilter = function(filter) {
-      currentFilter = filter;
-      document.querySelectorAll('.filter-tab').forEach(tab => {
-        tab.className = 'filter-tab px-3 py-1 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 transition-colors';
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-tab').forEach(el => {
+        el.className = 'nav-tab px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-all';
       });
-      const activeBtn = document.getElementById(`filter-${filter}`);
-      if (activeBtn) {
-        activeBtn.className = 'filter-tab px-3 py-1 rounded-lg text-xs font-bold transition-colors bg-white text-slate-900 shadow-xs';
-      }
-      renderDashboard();
-    };
 
-    function renderDashboard() {
-      const allSprints = getSprints();
-      updateVelocityBar(allSprints);
-
-      let filtered = allSprints;
-      if (currentFilter === 'core') {
-        filtered = allSprints.filter(s => s.workstream === 'core');
-      } else if (currentFilter === 'remediation') {
-        filtered = allSprints.filter(s => s.workstream === 'remediation');
-      } else if (currentFilter === 'active') {
-        filtered = allSprints.filter(s => s.status === 'In Progress');
-      }
-
-      const tbody = document.getElementById('sprint-status-body');
-      const totalSprintsEl = document.getElementById('metric-total-sprints');
-      if (totalSprintsEl) totalSprintsEl.innerText = allSprints.length;
-
-      tbody.innerHTML = filtered.map((s) => {
-        const globalIdx = allSprints.findIndex(item => item.id === s.id);
-        const isComplete = s.status === 'Complete';
-        const statusClass = isComplete ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800';
-        const vqaClass = s.vqa.includes('FAIL') 
-          ? 'bg-red-100 text-red-800' 
-          : (s.vqa === 'PASS' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700');
-
-        return `
-          <tr class="border-b border-slate-100 hover:bg-slate-50/60 transition-colors">
-            <td class="py-3 px-4">
-              <div class="font-medium text-slate-900">${s.name}</div>
-              ${s.details ? `<p class="text-xs text-slate-500 mt-1 line-clamp-2 max-w-md">${s.details}</p>` : ''}
-            </td>
-            <td class="py-3 px-4 align-top">
-              <span class="px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-slate-100 text-slate-700 uppercase">${s.workstream || 'general'}</span>
-            </td>
-            <td class="py-3 px-4 align-top">
-              <span class="px-2 py-0.5 rounded text-xs font-semibold ${statusClass}">${s.status}</span>
-            </td>
-            <td class="py-3 px-4 align-top">
-              <span class="px-2 py-0.5 rounded text-xs font-semibold ${vqaClass}">${s.vqa}</span>
-            </td>
-            <td class="py-3 px-4 align-top text-right space-x-2">
-              <button onclick="editSprint(${globalIdx})" class="text-xs text-slate-600 hover:text-emerald-700 font-bold transition-colors">Edit</button>
-              <span class="text-slate-300">|</span>
-              <button onclick="removeSprint(${globalIdx})" class="text-xs text-red-500 hover:text-red-700 font-bold transition-colors">Delete</button>
-            </td>
-          </tr>
-        `;
-      }).join('');
+      const targetPane = document.getElementById('tab-' + tabId);
+      const targetNav = document.getElementById('nav-' + tabId);
+      if (targetPane) targetPane.classList.remove('hidden');
+      if (targetNav) targetNav.className = 'nav-tab px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-emerald-700 text-white shadow-xs';
     }
 
-    const panel = document.getElementById('admin-panel');
-    const toggleBtn = document.getElementById('toggle-form-btn');
-    const closeBtn = document.getElementById('close-form-btn');
-    const cancelBtn = document.getElementById('cancel-form-btn');
-    const form = document.getElementById('sprint-form');
-    const formTitle = document.getElementById('form-title');
-    const resetBtn = document.getElementById('reset-defaults-btn');
-
-    function openFormForAdd() {
-      document.getElementById('edit-index').value = "-1";
-      formTitle.innerText = "Add Sprint";
-      form.reset();
-      panel.classList.remove('hidden');
-      panel.scrollIntoView({ behavior: 'smooth' });
+    function openModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.remove('hidden');
     }
 
-    window.editSprint = function(idx) {
-      const sprint = getSprints()[idx];
-      if (!sprint) return;
+    function closeModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.add('hidden');
+    }
 
-      document.getElementById('edit-index').value = idx;
-      document.getElementById('sprint-id').value = sprint.id || '';
-      document.getElementById('sprint-name').value = sprint.name || '';
-      document.getElementById('sprint-workstream').value = sprint.workstream || 'core';
-      document.getElementById('sprint-status').value = sprint.status || 'In Progress';
-      document.getElementById('sprint-vqa').value = sprint.vqa || 'PENDING';
-      document.getElementById('sprint-details').value = sprint.details || '';
+    function setDeviceWidth(width, btn) {
+      const wrapper = document.getElementById('phone-wrapper');
+      wrapper.style.maxWidth = width;
+      document.querySelectorAll('.device-toggle').forEach(b => {
+        b.className = 'device-toggle px-3 py-1 text-xs font-medium text-slate-600 hover:text-slate-900';
+      });
+      btn.className = 'device-toggle px-3 py-1 text-xs font-bold rounded-md bg-white text-slate-900 shadow-xs';
+    }
 
-      formTitle.innerText = `Edit ${sprint.id}`;
-      panel.classList.remove('hidden');
-      panel.scrollIntoView({ behavior: 'smooth' });
-    };
-
-    window.removeSprint = function(idx) {
-      const sprints = getSprints();
-      const target = sprints[idx];
-      if (confirm(`Are you sure you want to remove ${target.name}?`)) {
-        sprints.splice(idx, 1);
-        saveSprints(sprints);
-      }
-    };
-
-    toggleBtn.addEventListener('click', openFormForAdd);
-    closeBtn.addEventListener('click', () => panel.classList.add('hidden'));
-    cancelBtn.addEventListener('click', () => panel.classList.add('hidden'));
-
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const editIdx = parseInt(document.getElementById('edit-index').value, 10);
-      const sprintData = {
-        id: document.getElementById('sprint-id').value.trim(),
-        name: document.getElementById('sprint-name').value.trim(),
-        workstream: document.getElementById('sprint-workstream').value,
-        status: document.getElementById('sprint-status').value,
-        vqa: document.getElementById('sprint-vqa').value,
-        details: document.getElementById('sprint-details').value.trim()
-      };
-
-      const sprints = getSprints();
-      if (editIdx >= 0 && editIdx < sprints.length) {
-        sprints[editIdx] = sprintData;
-      } else {
-        sprints.push(sprintData);
-      }
-
-      saveSprints(sprints);
-      form.reset();
-      panel.classList.add('hidden');
-    });
-
-    resetBtn.addEventListener('click', () => {
-      if (confirm('Reset sprint list back to original Sprints 1-5 defaults?')) {
-        localStorage.removeItem('trueharvest_sprints');
-        renderDashboard();
-      }
-    });
-
-    renderDashboard();
+    function copyPostText() {
+      const text = document.getElementById('linkedin-post-content').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copy-post-btn');
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied to Clipboard!';
+        setTimeout(() => {
+          btn.innerHTML = '<i class="fa-regular fa-copy"></i> Copy Post Text';
+        }, 2500);
+      });
+    }
   </script>
 </body>
 </html>
