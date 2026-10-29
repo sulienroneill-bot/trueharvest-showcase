@@ -47,7 +47,7 @@
           <button onclick="openModal('arch-modal')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white shadow-xs transition-colors ml-1">
             <i class="fa-solid fa-diagram-project mr-1.5"></i>Process Architecture
           </button>
-          <!-- Admin-Only Button (Hidden from public) -->
+          <!-- Admin-Only Button (Revealed by ?admin=trueharvest2026) -->
           <button id="admin-add-btn" onclick="openSprintModal()" class="hidden px-3.5 py-1.5 rounded-lg text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-xs transition-colors ml-1">
             <i class="fa-solid fa-plus mr-1.5"></i>Add / Edit Sprint
           </button>
@@ -109,7 +109,7 @@
             <div>
               <div class="flex items-center gap-2">
                 <h2 class="text-base font-bold text-slate-900">Sprint Delivery &amp; VQA Remediation Roadmap</h2>
-                <span class="px-2 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-800 font-mono">
+                <span id="kpi-vqa-badge" class="px-2 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-800 font-mono">
                   <i class="fa-solid fa-triangle-exclamation mr-1"></i>VQA Remediation Active
                 </span>
               </div>
@@ -125,37 +125,37 @@
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
               <span class="text-xs text-slate-500 font-medium">Pipeline Velocity</span>
-              <div id="stat-velocity" class="text-2xl font-black text-slate-900 mt-1">46%</div>
-              <span id="stat-deliverables" class="text-[11px] text-slate-500">6/13 deliverables verified</span>
+              <div id="stat-velocity" class="text-2xl font-black text-slate-900 mt-1">0%</div>
+              <span id="stat-deliverables" class="text-[11px] text-slate-500">0/0 deliverables verified</span>
             </div>
             <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
               <span class="text-xs text-slate-500 font-medium">Execution Schedule</span>
-              <div class="text-2xl font-black text-amber-700 mt-1">+2.5 Days</div>
+              <div id="stat-variance" class="text-2xl font-black text-amber-700 mt-1">+2.5 Days</div>
               <span class="text-[11px] text-amber-700 font-medium">Variance due to VQA audit loop</span>
             </div>
             <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-              <span class="text-xs text-slate-500 font-medium">Active Sprint</span>
-              <div class="text-2xl font-black text-emerald-700 mt-1">Sprint 4</div>
-              <span class="text-[11px] text-slate-500">Viewports &amp; In-Store Ergonomics</span>
+              <span class="text-xs text-slate-500 font-medium">Active Sprints</span>
+              <div id="stat-active-count" class="text-2xl font-black text-emerald-700 mt-1">0</div>
+              <span class="text-[11px] text-slate-500">In Active Remediation</span>
             </div>
             <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
               <span class="text-xs text-slate-500 font-medium">VQA Compliance Status</span>
-              <div class="text-2xl font-black text-amber-600 mt-1">Remediating</div>
+              <div id="stat-compliance" class="text-2xl font-black text-amber-600 mt-1">Remediating</div>
               <span class="text-[11px] text-slate-500">4 Critical · 5 Major · 3 Minor</span>
             </div>
           </div>
 
-          <!-- Dynamic 5-Sprint Horizontal Track -->
+          <!-- Dynamic Horizontal Track -->
           <div class="space-y-2 pt-2">
-            <span class="text-[11px] font-bold uppercase text-slate-400 tracking-wider">Full Delivery Track</span>
-            <div id="sprint-horizontal-track" class="grid grid-cols-1 sm:grid-cols-5 gap-2"></div>
+            <span class="text-[11px] font-bold uppercase text-slate-400 tracking-wider">Delivery Track</span>
+            <div id="sprint-horizontal-track" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2"></div>
           </div>
         </section>
 
         <!-- 3-Column Workstream Board -->
         <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
-          <!-- Column 1: Sprint Backlog -->
+          <!-- Column 1: Backlog -->
           <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
               <div class="flex items-center gap-2">
@@ -167,7 +167,7 @@
             <div id="col-backlog" class="space-y-3"></div>
           </div>
 
-          <!-- Column 2: Active Sprints -->
+          <!-- Column 2: Active -->
           <div class="bg-white border-2 border-emerald-500 rounded-2xl p-5 shadow-xs space-y-4">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
               <div class="flex items-center gap-2">
@@ -179,7 +179,7 @@
             <div id="col-active" class="space-y-3"></div>
           </div>
 
-          <!-- Column 3: Verified On Disk -->
+          <!-- Column 3: Verified -->
           <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
               <div class="flex items-center gap-2">
@@ -241,129 +241,52 @@ If you're building with multimodal models or thinking about automated UI testing
       <!-- ================= TAB 2: GANTT CHART & TIMELINE ================= -->
       <div id="tab-gantt" class="tab-pane hidden space-y-6">
         <section class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-6">
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800 uppercase font-mono">10-Day Horizon</span>
-              <span class="text-xs text-slate-400">Oct 18 – Oct 27, 2026</span>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800 uppercase font-mono">Interactive Timeline</span>
+                <span id="gantt-range-label" class="text-xs text-slate-400">Live Calculated</span>
+              </div>
+              <h2 class="text-xl font-black text-slate-900 mt-1">Project Gantt Chart &amp; Schedule Variance</h2>
+              <p class="text-xs text-slate-500">Autonomous sprint delivery against Adjusted Schedule with automated variance calculation directly tied to your GUI Sprint Registry.</p>
             </div>
-            <h2 class="text-xl font-black text-slate-900 mt-1">Project Gantt Chart &amp; Schedule Variance</h2>
-            <p class="text-xs text-slate-500">Autonomous sprint delivery at TrueHarvest against Actual/Adjusted Schedule showing the 2.5-day remediation cycle introduced by Multimodal VQA Audit findings.</p>
+            <div id="gantt-admin-hint" class="hidden text-xs text-amber-700 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200">
+              <i class="fa-solid fa-pen-to-square mr-1"></i> Admin GUI edits directly re-render this timeline.
+            </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
             <div class="p-4 border border-slate-200 rounded-xl bg-slate-50 space-y-1">
               <span class="text-xs text-slate-500">Original Target Date</span>
               <div class="text-lg font-black text-slate-900">Oct 23, 2026</div>
-              <span class="text-[11px] text-slate-400">Pre-VQA Audit Target</span>
+              <span class="text-[11px] text-slate-400">Pre-VQA Audit Baseline</span>
             </div>
             <div class="p-4 border border-amber-200 rounded-xl bg-amber-50/60 space-y-1">
-              <span class="text-xs text-amber-800 font-semibold">Schedule Variance</span>
-              <div class="text-lg font-black text-amber-700">+2.5 Calendar Days</div>
-              <span class="text-[11px] text-amber-700">Added Sprints 4 &amp; 5 to remediate 7 defects</span>
+              <span class="text-xs text-amber-800 font-semibold">Active Schedule Variance</span>
+              <div id="gantt-variance-metric" class="text-lg font-black text-amber-700">+2.5 Calendar Days</div>
+              <span id="gantt-variance-sub" class="text-[11px] text-amber-700">Remediating audit defects</span>
             </div>
             <div class="p-4 border border-emerald-200 rounded-xl bg-emerald-50/60 space-y-1">
-              <span class="text-xs text-emerald-800 font-semibold">New Target Production Release</span>
-              <div class="text-lg font-black text-emerald-800">Oct 26, 2026</div>
+              <span class="text-xs text-emerald-800 font-semibold">Target Production Release</span>
+              <div id="gantt-target-metric" class="text-lg font-black text-emerald-800">Oct 26, 2026</div>
               <span class="text-[11px] text-emerald-700">100% VQA Compliant Gate</span>
             </div>
           </div>
 
-          <!-- Timeline Bars -->
+          <!-- Dynamic Horizontal Schedule Bars Container -->
           <div class="space-y-4 pt-4 border-t border-slate-100">
             <div class="flex justify-between text-xs font-mono text-slate-400 border-b border-slate-100 pb-2">
               <span class="w-1/3">Milestone / Sprint</span>
-              <span class="text-center">Oct 19</span>
-              <span class="text-center">Oct 20</span>
-              <span class="text-center">Oct 21</span>
-              <span class="text-center">Oct 22</span>
-              <span class="text-center font-bold text-emerald-700">Today (23)</span>
-              <span class="text-center">Oct 24</span>
-              <span class="text-center">Oct 25</span>
-              <span class="text-center">Oct 26</span>
+              <span class="text-center">Sprint Scaffolding</span>
+              <span class="text-center font-bold text-amber-600">VQA Gate Check</span>
+              <span class="text-center font-bold text-emerald-700">Remediation Delivery</span>
             </div>
 
-            <!-- S1 -->
-            <div class="space-y-1">
-              <div class="flex items-center justify-between text-xs">
-                <span class="font-bold text-slate-900">Sprint 1: Tokens &amp; Header Navigation</span>
-                <span class="text-[11px] font-mono text-emerald-700 font-semibold">On Schedule (Oct 18–20)</span>
-              </div>
-              <div class="w-full bg-slate-100 h-6 rounded-lg overflow-hidden flex items-center p-1">
-                <div class="bg-emerald-600 h-4 rounded text-[10px] text-white font-bold flex items-center px-2" style="width: 30%">
-                  Shipped (Oct 18–20)
-                </div>
-              </div>
-            </div>
-
-            <!-- S2 -->
-            <div class="space-y-1">
-              <div class="flex items-center justify-between text-xs">
-                <span class="font-bold text-slate-900">Sprint 2: Aisle Controls &amp; Swaps</span>
-                <span class="text-[11px] font-mono text-emerald-700 font-semibold">On Schedule (Oct 20–21)</span>
-              </div>
-              <div class="w-full bg-slate-100 h-6 rounded-lg overflow-hidden flex items-center p-1">
-                <div class="h-4 rounded" style="width: 25%"></div>
-                <div class="bg-emerald-600 h-4 rounded text-[10px] text-white font-bold flex items-center px-2" style="width: 25%">
-                  Shipped (Oct 20–21)
-                </div>
-              </div>
-            </div>
-
-            <!-- S3 -->
-            <div class="space-y-1">
-              <div class="flex items-center justify-between text-xs">
-                <span class="font-bold text-slate-900">Sprint 3: Basket Optimizer &amp; Directory</span>
-                <span class="text-[11px] font-mono text-emerald-700 font-semibold">On Schedule (Oct 21–22)</span>
-              </div>
-              <div class="w-full bg-slate-100 h-6 rounded-lg overflow-hidden flex items-center p-1">
-                <div class="h-4 rounded" style="width: 45%"></div>
-                <div class="bg-emerald-600 h-4 rounded text-[10px] text-white font-bold flex items-center px-2" style="width: 25%">
-                  Shipped (Oct 21–22)
-                </div>
-              </div>
-            </div>
-
-            <!-- VQA Gate -->
-            <div class="p-3 bg-red-50 border border-red-200 rounded-xl space-y-1 my-3">
-              <div class="flex items-center justify-between text-xs font-bold text-red-800">
-                <span>🚨 Milestone: Multimodal VQA Inspection Gate</span>
-                <span class="font-mono bg-red-200 text-red-900 px-2 py-0.5 rounded text-[10px]">VERDICT: FAIL (7 Regressions Caught)</span>
-              </div>
-              <p class="text-[11px] text-slate-600">
-                Inspection on Oct 22 revealed critical blockers: 420px uncollapsed standards drawer, detached camera trigger, and card inception. Triggered remediation pivot.
-              </p>
-            </div>
-
-            <!-- S4 -->
-            <div class="space-y-1">
-              <div class="flex items-center justify-between text-xs">
-                <span class="font-bold text-slate-900">Sprint 4: VQA Ergonomics Remediation</span>
-                <span class="text-[11px] font-mono text-amber-700 font-bold">+1.5 Days Added (Oct 23–24)</span>
-              </div>
-              <div class="w-full bg-slate-100 h-6 rounded-lg overflow-hidden flex items-center p-1">
-                <div class="h-4 rounded" style="width: 60%"></div>
-                <div class="bg-amber-500 h-4 rounded text-[10px] text-white font-bold flex items-center px-2 animate-pulse" style="width: 25%">
-                  Active Execution
-                </div>
-              </div>
-            </div>
-
-            <!-- S5 -->
-            <div class="space-y-1">
-              <div class="flex items-center justify-between text-xs">
-                <span class="font-bold text-slate-900">Sprint 5: Transparency &amp; Viewport Guard</span>
-                <span class="text-[11px] font-mono text-slate-500 font-semibold">+1.0 Day Added (Oct 25–26)</span>
-              </div>
-              <div class="w-full bg-slate-100 h-6 rounded-lg overflow-hidden flex items-center p-1">
-                <div class="h-4 rounded" style="width: 80%"></div>
-                <div class="bg-slate-300 h-4 rounded text-[10px] text-slate-700 font-bold flex items-center px-2" style="width: 20%">
-                  Planned Remediation
-                </div>
-              </div>
-            </div>
+            <!-- Dynamically Rendered Bars -->
+            <div id="gantt-bars-container" class="space-y-3"></div>
           </div>
 
-          <!-- Why the 2.5 Day Delay is Strategic Win -->
+          <!-- Why the Delay is a Strategic Win -->
           <div class="border border-emerald-200 bg-emerald-50/40 rounded-2xl p-5 space-y-3">
             <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-950">Why the 2.5-Day Delay is a Strategic Win</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
@@ -376,7 +299,7 @@ If you're building with multimodal models or thinking about automated UI testing
               <div class="space-y-1">
                 <strong class="text-emerald-900 block">With Autonomous Remediation:</strong>
                 <p class="text-slate-600 leading-relaxed">
-                  The 2.5-day adjustment caught and remediated all 7 defects automatically. Sprints 4 &amp; 5 deliver 44px collapsible ergonomics and verified zero-leak viewports before public distribution.
+                  The adjustment caught and remediated all defects automatically. Sprints deliver 44px collapsible ergonomics and verified zero-leak viewports before public distribution.
                 </p>
               </div>
             </div>
@@ -393,14 +316,13 @@ If you're building with multimodal models or thinking about automated UI testing
                 <span class="px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-800 font-mono">AUDIT VERDICT: FAIL</span>
                 <h2 class="text-base font-bold text-slate-900">Multimodal VQA Audit Log (Gemini 3.8 / Pro)</h2>
               </div>
-              <p class="text-xs text-slate-500 mt-0.5">Automated screen recording inspection. Evaluated against in-store ergonomics targets. All defects tracked and assigned to Sprints 4 &amp; 5.</p>
+              <p class="text-xs text-slate-500 mt-0.5">Automated screen recording inspection. Evaluated against in-store ergonomics targets. All defects tracked and assigned to Sprints.</p>
             </div>
-            <button onclick="switchTab('device')" class="px-3.5 py-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold hover:bg-emerald-100 transition-colors">
-              <i class="fa-solid fa-mobile-screen mr-1"></i> View Sprint Board
+            <button onclick="switchTab('roadmap')" class="px-3.5 py-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold hover:bg-emerald-100 transition-colors">
+              <i class="fa-solid fa-list-check mr-1"></i> View Sprint Board
             </button>
           </div>
 
-          <!-- 3 Categories Strip -->
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="p-4 border border-red-200 bg-red-50/40 rounded-xl space-y-1">
               <div class="text-xs font-bold text-red-800 uppercase">Critical Blockers (4)</div>
@@ -674,23 +596,23 @@ If you're building with multimodal models or thinking about automated UI testing
       </div>
     </div>
 
-    <!-- Admin Sprint Editor Modal (Only functional in Admin Mode) -->
+    <!-- Admin Sprint Editor Modal -->
     <div id="sprint-edit-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
       <div class="bg-white rounded-3xl max-w-xl w-full p-6 space-y-5 max-h-[90vh] overflow-y-auto shadow-2xl">
         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
           <div>
             <h3 id="modal-form-title" class="text-base font-bold text-slate-900">Add / Edit Sprint</h3>
-            <p class="text-xs text-slate-500">Admin GUI Mode Active via Secret Key.</p>
+            <p class="text-xs text-slate-500">Live localStorage persistence: updates Board &amp; Gantt timeline simultaneously.</p>
           </div>
           <button onclick="closeSprintModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold p-1">✕</button>
         </div>
 
         <form id="admin-sprint-form" class="space-y-4">
-          <input type="hidden" id="edit-idx" value="-1" />
+          <input type="hidden" id="edit-original-id" value="" />
           
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">Sprint ID</label>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Sprint ID / Key</label>
               <input type="text" id="inp-id" placeholder="sprint-6" required class="w-full text-xs px-3 py-2 border border-slate-200 rounded-lg font-mono focus:ring-2 focus:ring-emerald-600 outline-none" />
             </div>
             <div>
@@ -723,6 +645,17 @@ If you're building with multimodal models or thinking about automated UI testing
             </div>
           </div>
 
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Gantt Start Date</label>
+              <input type="text" id="inp-start" placeholder="Oct 24" class="w-full text-xs px-3 py-2 border border-slate-200 rounded-lg font-mono focus:ring-2 focus:ring-emerald-600 outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Gantt End Date</label>
+              <input type="text" id="inp-end" placeholder="Oct 26" class="w-full text-xs px-3 py-2 border border-slate-200 rounded-lg font-mono focus:ring-2 focus:ring-emerald-600 outline-none" />
+            </div>
+          </div>
+
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1">Sprint Notes / Architectural Details</label>
             <textarea id="inp-desc" rows="3" placeholder="Enter sprint scope details, VQA defect references..." class="w-full text-xs p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-600 outline-none"></textarea>
@@ -730,14 +663,14 @@ If you're building with multimodal models or thinking about automated UI testing
 
           <div class="flex items-center justify-between pt-2 border-t border-slate-100">
             <button type="button" onclick="resetDefaults()" class="text-xs text-red-500 hover:text-red-700 font-bold">
-              Reset to Defaults
+              Reset to Factory Sprints
             </button>
             <div class="flex gap-2">
               <button type="button" onclick="closeSprintModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl">
                 Cancel
               </button>
               <button type="submit" class="px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl shadow-xs">
-                Save Sprint
+                Save to Board &amp; Gantt
               </button>
             </div>
           </div>
@@ -753,57 +686,84 @@ If you're building with multimodal models or thinking about automated UI testing
     const IS_ADMIN = urlParams.get('admin') === 'trueharvest2026';
 
     const INITIAL_SPRINTS = [
-      // Backlog
-      { id: 's5p1', column: 'backlog', title: 'Price Delta Transparency Card', tag: 'Major #5', status: 'PLANNED', desc: 'Explicit delta approval: +$4.20 (+12%) vs CAFO baseline with fair share breakdown.' },
-      { id: 's5p2', column: 'backlog', title: '3-Tier Brand Card & $0.0B Math Fix', tag: 'Major #4', status: 'PLANNED', desc: 'Eliminates entity clutter, resolves revenue formatting bug millions showing $0.0B, max 2 badges.' },
-      { id: 's5p3', column: 'backlog', title: '393px Overflow Guard & Typography Audit', tag: 'Critical #3', status: 'PLANNED', desc: 'Global CSS guard against horizontal scroll, WCAG AA contrast on stone-400, <12px micro-typography fixes.' },
+      // Sprints 1 to 3: Verified
+      { id: 'sprint-1', column: 'verified', title: 'Sprint 1: Tokens & Hardware Scaffolding', tag: 'Tokens & Header', status: 'PASS', startDate: 'Oct 18', endDate: 'Oct 20', pct: 25, offset: 0, desc: '3,376 bytes written to disk. Established token engine and responsive shell.' },
+      { id: 'sprint-2', column: 'verified', title: 'Sprint 2: Aisle Controls & Swaps', tag: 'AisleControls, SwapCard', status: 'PASS', startDate: 'Oct 20', endDate: 'Oct 21', pct: 25, offset: 20, desc: 'Aisle controls and product swap card initial scaffolding.' },
+      { id: 'sprint-3', column: 'verified', title: 'Sprint 3: Basket Optimizer & Directory', tag: 'Basket & Directory', status: 'PASS', startDate: 'Oct 21', endDate: 'Oct 22', pct: 25, offset: 35, desc: 'BasketOptimizer and BrandDirectory written to disk.' },
       
-      // Active Remediation
-      { id: 's4p1', column: 'active', title: 'Safe-Zone Clearance & Top Nav Standard', tag: 'Critical #1', status: 'FAIL', desc: 'Adds pt-[max(env(safe-area-inset-top),12px)] Dynamic Island clearance and non-truncating pills.' },
-      { id: 's4p2', column: 'active', title: '44px Default Collapsible Standards Drawer', tag: 'Critical #2', status: 'FAIL', desc: 'Replaces 420px banner with 44px accordion, freeing primary scanning fold.' },
-      { id: 's4p3', column: 'active', title: 'Integrated Search Dock & 32px Mini Barcode', tag: 'Major #3', status: 'FAIL', desc: 'Embeds 32px scan trigger directly inside the search dock and quick clear "x".' },
-      { id: 's4p4', column: 'active', title: 'Un-nested Product Swap Card & SVG Gauges', tag: 'Critical #4', status: 'FAIL', desc: 'Eliminates nested colored boxes; renders 28 vs 94 circular numerical score gauges.' },
-
-      // Verified on Disk
-      { id: 's1p1', column: 'verified', title: 'S1P1: Status Tokens', tag: 'DesignTokens.tsx', status: 'PASS', desc: '3,376 bytes written to disk' },
-      { id: 's1p2', column: 'verified', title: 'S1P2: Header Navigation', tag: 'Header.tsx', status: 'PASS', desc: 'Header Shell & Nav Architecture written to disk' },
-      { id: 's2p1', column: 'verified', title: 'S2P1: Controls Scaffolding', tag: 'AisleCheckerControls.tsx', status: 'PASS', desc: 'Controls written to disk' },
-      { id: 's2p2', column: 'verified', title: 'S2P2: Swap Card Scaffold', tag: 'ProductSwapCard.tsx', status: 'PASS', desc: 'Swap Card initial file on disk' },
-      { id: 's3p1', column: 'verified', title: 'S3P1: Basket Optimizer', tag: 'BasketOptimizer.tsx', status: 'PASS', desc: 'Basket Optimizer written to disk' },
-      { id: 's3p2', column: 'verified', title: 'S3P2: Brand Directory', tag: 'BrandDirectory.tsx', status: 'PASS', desc: 'Brand Directory written to disk' },
+      // Sprint 4: Active Remediation
+      { id: 'sprint-4', column: 'active', title: 'Sprint 4: VQA Ergonomics Remediation', tag: 'Dynamic Island, 44px Drawer', status: 'FAIL', startDate: 'Oct 23', endDate: 'Oct 24', pct: 30, offset: 50, desc: 'Resolves safe-area clearance, 44px collapsible drawer, embedded 32px mini barcode trigger, and un-nested swap card.' },
+      
+      // Sprint 5: Backlog Planned
+      { id: 'sprint-5', column: 'backlog', title: 'Sprint 5: Transparency & Viewport Guard', tag: 'PriceDeltaCard, BrandCard', status: 'PLANNED', startDate: 'Oct 25', endDate: 'Oct 26', pct: 25, offset: 75, desc: 'Price delta card, Alexandre brand $0.0B math fix, 393px horizontal overflow guards.' },
     ];
 
     function getSprints() {
-      const stored = localStorage.getItem('th_showcase_sprints');
+      const stored = localStorage.getItem('th_showcase_sprints_v2');
       return stored ? JSON.parse(stored) : INITIAL_SPRINTS;
     }
 
     function saveSprints(sprints) {
-      localStorage.setItem('th_showcase_sprints', JSON.stringify(sprints));
-      renderBoard();
+      localStorage.setItem('th_showcase_sprints_v2', JSON.stringify(sprints));
+      renderAll();
     }
 
-    function renderBoard() {
+    function renderAll() {
       const sprints = getSprints();
+      renderStats(sprints);
+      renderHorizontalTrack(sprints);
+      renderColumns(sprints);
+      renderGantt(sprints);
+    }
 
-      // Render Horizontal Top Track (5 Sprints)
+    function renderStats(sprints) {
+      const total = sprints.length;
+      const verified = sprints.filter(s => s.column === 'verified').length;
+      const active = sprints.filter(s => s.column === 'active').length;
+      const velocity = total > 0 ? Math.round((verified / total) * 100) : 0;
+
+      document.getElementById('stat-velocity').innerText = `${velocity}%`;
+      document.getElementById('stat-deliverables').innerText = `${verified}/${total} deliverables verified`;
+      document.getElementById('stat-active-count').innerText = `${active}`;
+      
+      const hasFails = sprints.some(s => s.status === 'FAIL');
+      const complianceEl = document.getElementById('stat-compliance');
+      const badgeEl = document.getElementById('kpi-vqa-badge');
+      if (hasFails) {
+        complianceEl.innerText = "Remediating";
+        complianceEl.className = "text-2xl font-black text-amber-600 mt-1";
+        badgeEl.className = "px-2 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-800 font-mono";
+        badgeEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i>VQA Remediation Active';
+      } else {
+        complianceEl.innerText = "PASS";
+        complianceEl.className = "text-2xl font-black text-emerald-600 mt-1";
+        badgeEl.className = "px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800 font-mono";
+        badgeEl.innerHTML = '<i class="fa-solid fa-circle-check mr-1"></i>VQA All Clear';
+      }
+    }
+
+    function renderHorizontalTrack(sprints) {
       const trackEl = document.getElementById('sprint-horizontal-track');
-      const trackSprints = [
-        { name: 'Sprint 1', title: 'Design System & Header', status: 'OK (Oct 18-20)', cls: 'border-emerald-200 bg-emerald-50/70 text-emerald-950' },
-        { name: 'Sprint 2', title: 'Aisle Controls & Swaps', status: 'AisleControls, SwapCard', cls: 'border-emerald-200 bg-emerald-50/70 text-emerald-950' },
-        { name: 'Sprint 3', title: 'Basket & Directory', status: 'BasketOptimizer, Directory', cls: 'border-emerald-200 bg-emerald-50/70 text-emerald-950' },
-        { name: 'Sprint 4', title: 'VQA In-Aisle Ergonomics', status: 'Drawer, Barcode, Gauges', cls: 'border-2 border-emerald-600 bg-white' },
-        { name: 'Sprint 5', title: 'Transparency & Viewport', status: 'PriceDeltaCard, BrandCard', cls: 'border-slate-200 bg-slate-50 opacity-70' }
-      ];
-      trackEl.innerHTML = trackSprints.map(s => `
-        <div class="p-2.5 rounded-xl border text-xs ${s.cls}">
-          <span class="font-bold block">${s.name}</span>
-          <span class="text-[11px] truncate block opacity-90">${s.title}</span>
-          <span class="text-[10px] font-mono opacity-80">${s.status}</span>
-        </div>
-      `).join('');
+      trackEl.innerHTML = sprints.map(s => {
+        let borderClass = 'border-slate-200 bg-slate-50 opacity-80';
+        if (s.column === 'verified') borderClass = 'border-emerald-200 bg-emerald-50/70 text-emerald-950';
+        if (s.column === 'active') borderClass = 'border-2 border-emerald-600 bg-white text-slate-900 shadow-xs';
 
-      // Populate Columns
+        return `
+          <div class="p-2.5 rounded-xl border text-xs ${borderClass}">
+            <div class="flex items-center justify-between">
+              <span class="font-bold truncate">${s.title.split(':')[0]}</span>
+              ${s.status === 'PASS' ? '<span class="text-emerald-700 font-bold text-[10px]">✔</span>' : ''}
+              ${s.status === 'FAIL' ? '<span class="text-amber-700 font-bold text-[10px]">VQA</span>' : ''}
+            </div>
+            <span class="text-[11px] truncate block opacity-90">${s.tag || s.title}</span>
+            <span class="text-[10px] font-mono opacity-70">${s.startDate || ''} – ${s.endDate || ''}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderColumns(sprints) {
       const colBacklog = document.getElementById('col-backlog');
       const colActive = document.getElementById('col-active');
       const colVerified = document.getElementById('col-verified');
@@ -816,33 +776,16 @@ If you're building with multimodal models or thinking about automated UI testing
       document.getElementById('active-count').innerText = `${activeItems.length} Tasks`;
       document.getElementById('verified-count').innerText = `${verifiedItems.length} Shipped`;
 
-      // Backlog column
-      colBacklog.innerHTML = backlogItems.map((s) => `
-        <div class="p-3.5 border border-slate-200 rounded-xl bg-slate-50/50 space-y-1.5 relative group">
+      // Backlog
+      colBacklog.innerHTML = backlogItems.map(s => `
+        <div class="p-3.5 border border-slate-200 rounded-xl bg-slate-50/50 space-y-1.5">
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold text-slate-900">${s.title}</span>
-            <span class="text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">${s.tag || 'Backlog'}</span>
+            <span class="text-[10px] font-bold text-slate-700 bg-slate-200 px-1.5 py-0.5 rounded">${s.tag || 'Planned'}</span>
           </div>
           <p class="text-xs text-slate-500 leading-relaxed">${s.desc || ''}</p>
-          ${IS_ADMIN ? `
-            <div class="pt-2 flex justify-end gap-2 border-t border-slate-200/60 text-[11px] font-bold">
-              <button onclick="editSprintItem('${s.id}')" class="text-emerald-700 hover:underline">Edit</button>
-              <button onclick="deleteSprintItem('${s.id}')" class="text-red-500 hover:underline">Delete</button>
-            </div>
-          ` : ''}
-        </div>
-      `).join('');
-
-      // Active column
-      colActive.innerHTML = activeItems.map((s) => `
-        <div class="p-3.5 border border-emerald-100 rounded-xl bg-emerald-50/40 space-y-1.5 relative group">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-900">${s.title}</span>
-            <span class="text-[10px] font-bold text-red-700 bg-red-100 px-1.5 py-0.5 rounded">${s.tag || 'Remediation'}</span>
-          </div>
-          <p class="text-xs text-slate-600 leading-relaxed">${s.desc || ''}</p>
-          <div class="text-[10px] font-mono text-emerald-700 pt-1 flex items-center justify-between">
-            <span><i class="fa-solid fa-circle-check mr-1"></i>Active in runner</span>
+          <div class="text-[10px] font-mono text-slate-400 flex items-center justify-between pt-1">
+            <span>${s.startDate || ''} – ${s.endDate || ''}</span>
             ${IS_ADMIN ? `
               <div class="space-x-2 font-bold">
                 <button onclick="editSprintItem('${s.id}')" class="text-emerald-700 hover:underline">Edit</button>
@@ -853,8 +796,28 @@ If you're building with multimodal models or thinking about automated UI testing
         </div>
       `).join('');
 
-      // Verified column
-      colVerified.innerHTML = verifiedItems.map((s) => `
+      // Active
+      colActive.innerHTML = activeItems.map(s => `
+        <div class="p-3.5 border border-emerald-100 rounded-xl bg-emerald-50/40 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-900">${s.title}</span>
+            <span class="text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">${s.tag || 'Active'}</span>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">${s.desc || ''}</p>
+          <div class="text-[10px] font-mono text-emerald-700 pt-1 flex items-center justify-between">
+            <span><i class="fa-solid fa-circle-check mr-1"></i>${s.startDate || ''} – ${s.endDate || ''}</span>
+            ${IS_ADMIN ? `
+              <div class="space-x-2 font-bold">
+                <button onclick="editSprintItem('${s.id}')" class="text-emerald-700 hover:underline">Edit</button>
+                <button onclick="deleteSprintItem('${s.id}')" class="text-red-500 hover:underline">Delete</button>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `).join('');
+
+      // Verified
+      colVerified.innerHTML = verifiedItems.map(s => `
         <div class="p-3 border border-slate-200 rounded-xl bg-slate-50/60 space-y-1">
           <div class="flex items-center justify-between text-slate-900 font-bold">
             <span>${s.title}</span>
@@ -864,7 +827,7 @@ If you're building with multimodal models or thinking about automated UI testing
           <div class="text-[10px] text-slate-400 flex items-center justify-between">
             <span>${s.desc || ''}</span>
             ${IS_ADMIN ? `
-              <div class="space-x-2 font-bold">
+              <div class="space-x-2 font-bold font-sans">
                 <button onclick="editSprintItem('${s.id}')" class="text-emerald-700 hover:underline">Edit</button>
                 <button onclick="deleteSprintItem('${s.id}')" class="text-red-500 hover:underline">Delete</button>
               </div>
@@ -874,11 +837,51 @@ If you're building with multimodal models or thinking about automated UI testing
       `).join('');
     }
 
+    function renderGantt(sprints) {
+      const container = document.getElementById('gantt-bars-container');
+      
+      container.innerHTML = sprints.map(s => {
+        let barColor = 'bg-slate-300 text-slate-700';
+        let statusBadge = '<span class="text-slate-500">Planned</span>';
+        let barWidth = s.pct || 30;
+        let barOffset = s.offset || 0;
+
+        if (s.column === 'verified') {
+          barColor = 'bg-emerald-600 text-white';
+          statusBadge = '<span class="text-emerald-700 font-semibold font-mono">Shipped (' + (s.startDate || 'Oct 18') + '–' + (s.endDate || 'Oct 20') + ')</span>';
+        } else if (s.column === 'active') {
+          barColor = 'bg-amber-500 text-white animate-pulse';
+          statusBadge = '<span class="text-amber-700 font-bold font-mono">Active Execution (' + (s.startDate || 'Oct 23') + '–' + (s.endDate || 'Oct 24') + ')</span>';
+        }
+
+        return `
+          <div class="space-y-1">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-bold text-slate-900">${s.title}</span>
+              <div class="flex items-center gap-2">
+                ${statusBadge}
+                ${IS_ADMIN ? `
+                  <button onclick="editSprintItem('${s.id}')" class="text-[11px] text-emerald-700 hover:underline font-bold">[Edit Bar]</button>
+                ` : ''}
+              </div>
+            </div>
+            <div class="w-full bg-slate-100 h-6 rounded-lg overflow-hidden flex items-center p-1">
+              <div style="width: ${barOffset}%"></div>
+              <div class="${barColor} h-4 rounded text-[10px] font-bold flex items-center px-2 truncate" style="width: ${barWidth}%">
+                ${s.startDate || ''} – ${s.endDate || ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
     // Modal Operations
     function openSprintModal() {
-      document.getElementById('edit-idx').value = "-1";
+      document.getElementById('edit-original-id').value = "";
       document.getElementById('admin-sprint-form').reset();
-      document.getElementById('modal-form-title').innerText = "Add Sprint Item";
+      document.getElementById('inp-id').value = "sprint-" + (getSprints().length + 1);
+      document.getElementById('modal-form-title').innerText = "Add New Sprint";
       document.getElementById('sprint-edit-modal').classList.remove('hidden');
     }
 
@@ -891,12 +894,14 @@ If you're building with multimodal models or thinking about automated UI testing
       const s = sprints.find(item => item.id === id);
       if (!s) return;
 
-      document.getElementById('edit-idx').value = id;
+      document.getElementById('edit-original-id').value = s.id;
       document.getElementById('inp-id').value = s.id;
       document.getElementById('inp-column').value = s.column;
       document.getElementById('inp-title').value = s.title;
       document.getElementById('inp-tag').value = s.tag || '';
       document.getElementById('inp-status').value = s.status || 'PASS';
+      document.getElementById('inp-start').value = s.startDate || '';
+      document.getElementById('inp-end').value = s.endDate || '';
       document.getElementById('inp-desc').value = s.desc || '';
 
       document.getElementById('modal-form-title').innerText = `Edit: ${s.title}`;
@@ -904,14 +909,14 @@ If you're building with multimodal models or thinking about automated UI testing
     };
 
     window.deleteSprintItem = function(id) {
-      if (!confirm("Are you sure you want to delete this sprint task?")) return;
+      if (!confirm("Are you sure you want to remove this sprint task?")) return;
       const sprints = getSprints().filter(item => item.id !== id);
       saveSprints(sprints);
     };
 
     document.getElementById('admin-sprint-form').addEventListener('submit', (e) => {
       e.preventDefault();
-      const editId = document.getElementById('edit-idx').value;
+      const originalId = document.getElementById('edit-original-id').value;
       const sprints = getSprints();
 
       const itemData = {
@@ -920,13 +925,24 @@ If you're building with multimodal models or thinking about automated UI testing
         title: document.getElementById('inp-title').value.trim(),
         tag: document.getElementById('inp-tag').value.trim(),
         status: document.getElementById('inp-status').value,
-        desc: document.getElementById('inp-desc').value.trim()
+        startDate: document.getElementById('inp-start').value.trim() || 'Oct 24',
+        endDate: document.getElementById('inp-end').value.trim() || 'Oct 26',
+        desc: document.getElementById('inp-desc').value.trim(),
+        pct: 25,
+        offset: 50
       };
 
-      if (editId !== "-1") {
-        const idx = sprints.findIndex(item => item.id === editId);
-        if (idx !== -1) sprints[idx] = itemData;
+      if (originalId) {
+        const idx = sprints.findIndex(item => item.id === originalId);
+        if (idx !== -1) {
+          itemData.pct = sprints[idx].pct || 25;
+          itemData.offset = sprints[idx].offset || 50;
+          sprints[idx] = itemData;
+        }
       } else {
+        // Calculate sensible offset for new bar on Gantt
+        itemData.offset = Math.min(80, sprints.length * 15);
+        itemData.pct = 20;
         sprints.push(itemData);
       }
 
@@ -935,9 +951,9 @@ If you're building with multimodal models or thinking about automated UI testing
     });
 
     function resetDefaults() {
-      if (confirm("Reset all sprints back to original factory defaults?")) {
-        localStorage.removeItem('th_showcase_sprints');
-        renderBoard();
+      if (confirm("Reset all sprints back to factory defaults?")) {
+        localStorage.removeItem('th_showcase_sprints_v2');
+        renderAll();
         closeSprintModal();
       }
     }
@@ -985,15 +1001,17 @@ If you're building with multimodal models or thinking about automated UI testing
       });
     }
 
-    // Initialize Security & State
+    // Check Admin Authentication
     if (IS_ADMIN) {
       document.getElementById('admin-add-btn').classList.remove('hidden');
+      document.getElementById('gantt-admin-hint').classList.remove('hidden');
       const badge = document.getElementById('mode-badge');
       badge.innerText = 'Admin GUI Mode';
       badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-900 tracking-wider uppercase';
     }
 
-    renderBoard();
+    // Initial render
+    renderAll();
   </script>
 </body>
 </html>
