@@ -620,7 +620,7 @@ If you're building with multimodal models or thinking about automated UI testing
               <select id="inp-column" class="w-full text-xs px-3 py-2 border border-slate-200 rounded-lg bg-white focus:ring-2 focus:ring-emerald-600 outline-none">
                 <option value="backlog">Backlog (Planned)</option>
                 <option value="active">Active Remediation</option>
-                <option value="verified">Verified on Disk</option>
+                <option value="verified">Completed (Verified on Disk)</option>
               </select>
             </div>
           </div>
@@ -708,6 +708,28 @@ If you're building with multimodal models or thinking about automated UI testing
       renderAll();
     }
 
+    // Direct Action: Mark as Complete
+    window.markSprintComplete = function(id) {
+      const sprints = getSprints();
+      const s = sprints.find(item => item.id === id);
+      if (!s) return;
+
+      s.column = 'verified';
+      s.status = 'PASS';
+      saveSprints(sprints);
+    };
+
+    // Reopen / Move to Active
+    window.reopenSprint = function(id) {
+      const sprints = getSprints();
+      const s = sprints.find(item => item.id === id);
+      if (!s) return;
+
+      s.column = 'active';
+      s.status = 'FAIL';
+      saveSprints(sprints);
+    };
+
     function renderAll() {
       const sprints = getSprints();
       renderStats(sprints);
@@ -726,10 +748,10 @@ If you're building with multimodal models or thinking about automated UI testing
       document.getElementById('stat-deliverables').innerText = `${verified}/${total} deliverables verified`;
       document.getElementById('stat-active-count').innerText = `${active}`;
       
-      const hasFails = sprints.some(s => s.status === 'FAIL');
+      const hasActiveFails = sprints.some(s => s.column !== 'verified' && s.status === 'FAIL');
       const complianceEl = document.getElementById('stat-compliance');
       const badgeEl = document.getElementById('kpi-vqa-badge');
-      if (hasFails) {
+      if (hasActiveFails || active > 0) {
         complianceEl.innerText = "Remediating";
         complianceEl.className = "text-2xl font-black text-amber-600 mt-1";
         badgeEl.className = "px-2 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-800 font-mono";
@@ -746,18 +768,19 @@ If you're building with multimodal models or thinking about automated UI testing
       const trackEl = document.getElementById('sprint-horizontal-track');
       trackEl.innerHTML = sprints.map(s => {
         let borderClass = 'border-slate-200 bg-slate-50 opacity-80';
-        if (s.column === 'verified') borderClass = 'border-emerald-200 bg-emerald-50/70 text-emerald-950';
-        if (s.column === 'active') borderClass = 'border-2 border-emerald-600 bg-white text-slate-900 shadow-xs';
+        if (s.column === 'verified') borderClass = 'border-emerald-200 bg-emerald-50/70 text-emerald-950 font-bold';
+        if (s.column === 'active') borderClass = 'border-2 border-emerald-600 bg-white text-slate-900 shadow-xs font-bold';
 
         return `
           <div class="p-2.5 rounded-xl border text-xs ${borderClass}">
             <div class="flex items-center justify-between">
-              <span class="font-bold truncate">${s.title.split(':')[0]}</span>
-              ${s.status === 'PASS' ? '<span class="text-emerald-700 font-bold text-[10px]">✔</span>' : ''}
-              ${s.status === 'FAIL' ? '<span class="text-amber-700 font-bold text-[10px]">VQA</span>' : ''}
+              <span class="truncate">${s.title.split(':')[0]}</span>
+              ${s.column === 'verified' ? '<span class="text-emerald-700 text-[10px]">✔ PASS</span>' : ''}
+              ${s.column === 'active' ? '<span class="text-amber-700 text-[10px]">IN PROG</span>' : ''}
+              ${s.column === 'backlog' ? '<span class="text-slate-400 text-[10px]">PLAN</span>' : ''}
             </div>
-            <span class="text-[11px] truncate block opacity-90">${s.tag || s.title}</span>
-            <span class="text-[10px] font-mono opacity-70">${s.startDate || ''} – ${s.endDate || ''}</span>
+            <span class="text-[11px] truncate block opacity-90 font-normal">${s.tag || s.title}</span>
+            <span class="text-[10px] font-mono opacity-70 font-normal">${s.startDate || ''} – ${s.endDate || ''}</span>
           </div>
         `;
       }).join('');
@@ -776,9 +799,9 @@ If you're building with multimodal models or thinking about automated UI testing
       document.getElementById('active-count').innerText = `${activeItems.length} Tasks`;
       document.getElementById('verified-count').innerText = `${verifiedItems.length} Shipped`;
 
-      // Backlog
+      // Backlog column
       colBacklog.innerHTML = backlogItems.map(s => `
-        <div class="p-3.5 border border-slate-200 rounded-xl bg-slate-50/50 space-y-1.5">
+        <div class="p-3.5 border border-slate-200 rounded-xl bg-slate-50/50 space-y-2">
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold text-slate-900">${s.title}</span>
             <span class="text-[10px] font-bold text-slate-700 bg-slate-200 px-1.5 py-0.5 rounded">${s.tag || 'Planned'}</span>
@@ -787,8 +810,10 @@ If you're building with multimodal models or thinking about automated UI testing
           <div class="text-[10px] font-mono text-slate-400 flex items-center justify-between pt-1">
             <span>${s.startDate || ''} – ${s.endDate || ''}</span>
             ${IS_ADMIN ? `
-              <div class="space-x-2 font-bold">
-                <button onclick="editSprintItem('${s.id}')" class="text-emerald-700 hover:underline">Edit</button>
+              <div class="space-x-2 font-bold font-sans">
+                <button onclick="markSprintComplete('${s.id}')" class="text-emerald-700 hover:text-emerald-900 font-bold"><i class="fa-solid fa-check mr-0.5"></i>Complete</button>
+                <span class="text-slate-300">|</span>
+                <button onclick="editSprintItem('${s.id}')" class="text-slate-600 hover:underline">Edit</button>
                 <button onclick="deleteSprintItem('${s.id}')" class="text-red-500 hover:underline">Delete</button>
               </div>
             ` : ''}
@@ -796,19 +821,22 @@ If you're building with multimodal models or thinking about automated UI testing
         </div>
       `).join('');
 
-      // Active
+      // Active column
       colActive.innerHTML = activeItems.map(s => `
-        <div class="p-3.5 border border-emerald-100 rounded-xl bg-emerald-50/40 space-y-1.5">
+        <div class="p-3.5 border border-emerald-100 rounded-xl bg-emerald-50/40 space-y-2">
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold text-slate-900">${s.title}</span>
             <span class="text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">${s.tag || 'Active'}</span>
           </div>
           <p class="text-xs text-slate-600 leading-relaxed">${s.desc || ''}</p>
           <div class="text-[10px] font-mono text-emerald-700 pt-1 flex items-center justify-between">
-            <span><i class="fa-solid fa-circle-check mr-1"></i>${s.startDate || ''} – ${s.endDate || ''}</span>
+            <span><i class="fa-solid fa-clock-rotate-left mr-1"></i>${s.startDate || ''} – ${s.endDate || ''}</span>
             ${IS_ADMIN ? `
-              <div class="space-x-2 font-bold">
-                <button onclick="editSprintItem('${s.id}')" class="text-emerald-700 hover:underline">Edit</button>
+              <div class="space-x-2 font-bold font-sans">
+                <button onclick="markSprintComplete('${s.id}')" class="px-2 py-0.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded text-[10px] font-bold shadow-xs">
+                  <i class="fa-solid fa-check mr-1"></i>Complete
+                </button>
+                <button onclick="editSprintItem('${s.id}')" class="text-slate-600 hover:underline">Edit</button>
                 <button onclick="deleteSprintItem('${s.id}')" class="text-red-500 hover:underline">Delete</button>
               </div>
             ` : ''}
@@ -816,18 +844,19 @@ If you're building with multimodal models or thinking about automated UI testing
         </div>
       `).join('');
 
-      // Verified
+      // Verified column
       colVerified.innerHTML = verifiedItems.map(s => `
         <div class="p-3 border border-slate-200 rounded-xl bg-slate-50/60 space-y-1">
           <div class="flex items-center justify-between text-slate-900 font-bold">
             <span>${s.title}</span>
-            <span class="text-emerald-600">✔</span>
+            <span class="text-emerald-600 font-bold">✔</span>
           </div>
           <div class="text-[11px] text-slate-500 font-sans">${s.tag || ''}</div>
-          <div class="text-[10px] text-slate-400 flex items-center justify-between">
+          <div class="text-[10px] text-slate-400 flex items-center justify-between pt-1">
             <span>${s.desc || ''}</span>
             ${IS_ADMIN ? `
               <div class="space-x-2 font-bold font-sans">
+                <button onclick="reopenSprint('${s.id}')" class="text-amber-700 hover:underline text-[10px]">Reopen</button>
                 <button onclick="editSprintItem('${s.id}')" class="text-emerald-700 hover:underline">Edit</button>
                 <button onclick="deleteSprintItem('${s.id}')" class="text-red-500 hover:underline">Delete</button>
               </div>
@@ -862,6 +891,7 @@ If you're building with multimodal models or thinking about automated UI testing
                 ${statusBadge}
                 ${IS_ADMIN ? `
                   <button onclick="editSprintItem('${s.id}')" class="text-[11px] text-emerald-700 hover:underline font-bold">[Edit Bar]</button>
+                  ${s.column !== 'verified' ? `<button onclick="markSprintComplete('${s.id}')" class="text-[11px] text-emerald-800 hover:underline font-bold">✔ Mark Done</button>` : ''}
                 ` : ''}
               </div>
             </div>
@@ -918,13 +948,14 @@ If you're building with multimodal models or thinking about automated UI testing
       e.preventDefault();
       const originalId = document.getElementById('edit-original-id').value;
       const sprints = getSprints();
+      const selectedColumn = document.getElementById('inp-column').value;
 
       const itemData = {
         id: document.getElementById('inp-id').value.trim(),
-        column: document.getElementById('inp-column').value,
+        column: selectedColumn,
         title: document.getElementById('inp-title').value.trim(),
         tag: document.getElementById('inp-tag').value.trim(),
-        status: document.getElementById('inp-status').value,
+        status: selectedColumn === 'verified' ? 'PASS' : document.getElementById('inp-status').value,
         startDate: document.getElementById('inp-start').value.trim() || 'Oct 24',
         endDate: document.getElementById('inp-end').value.trim() || 'Oct 26',
         desc: document.getElementById('inp-desc').value.trim(),
@@ -940,7 +971,6 @@ If you're building with multimodal models or thinking about automated UI testing
           sprints[idx] = itemData;
         }
       } else {
-        // Calculate sensible offset for new bar on Gantt
         itemData.offset = Math.min(80, sprints.length * 15);
         itemData.pct = 20;
         sprints.push(itemData);
