@@ -659,6 +659,7 @@ If you're building with multimodal models or thinking about automated UI testing
       renderHorizontalTrack(sprints);
       renderColumns(sprints);
       renderGantt(sprints);
+      updateLinkedInPost(sprints);
       
       const selector = document.getElementById('mockup-sprint-selector');
       renderDeviceMockup(selector ? selector.value : 'auto');
@@ -833,6 +834,34 @@ If you're building with multimodal models or thinking about automated UI testing
     }
 
     // ================= DYNAMIC SPRINT-DRIVEN DEVICE MOCKUP =================
+    
+    function updateLinkedInPost(sprints) {
+      const postBox = document.getElementById("linkedin-post-content");
+      if (!postBox) return;
+
+      const completedSprints = sprints.filter(s => s.column === "verified");
+      const sprintBullets = completedSprints.map(s => {
+        const scopeDesc = s.desc ? ` (${s.desc})` : (s.tag ? ` (${s.tag})` : "");
+        return `— ${s.title}${scopeDesc}`;
+      }).join("\n");
+
+      const activeSprints = sprints.filter(s => s.column === "active");
+      const activeSection = activeSprints.length > 0
+        ? `\nActive Execution:\n` + activeSprints.map(s => `• ${s.title}`).join("\n") + `\n`
+        : "";
+
+      postBox.innerText = `Building in public update: TrueHarvest execution roadmap & VQA engineering audit.
+
+I set up an autonomous Multimodal Visual QA (VQA) audit loop using Gemini in AI Studio to evaluate our grocery co-pilot against production mobile specifications.
+
+Verified & Delivered to Disk:
+${sprintBullets || "— Sprints in progress"}
+${activeSection}
+Live interactive showcase & receipts: https://sulienroneill-bot.github.io/trueharvest-showcase/
+
+#BuildInPublic #SoftwareEngineering #VisualQA #DesignSystems #AIAssistedDev #FrontendEngineering`;
+    }
+
     window.renderDeviceMockup = function(selectedMilestone) {
       const sprints = getSprints();
       let activeLevel = 4; // Default to Sprint 4
