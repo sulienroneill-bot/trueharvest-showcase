@@ -47,7 +47,6 @@
           <button onclick="openModal('arch-modal')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white shadow-xs transition-colors ml-1">
             <i class="fa-solid fa-diagram-project mr-1.5"></i>Process Architecture
           </button>
-          <!-- Admin-Only Button (Revealed by ?admin=trueharvest2026) -->
           <button id="admin-add-btn" onclick="openSprintModal()" class="hidden px-3.5 py-1.5 rounded-lg text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-xs transition-colors ml-1">
             <i class="fa-solid fa-plus mr-1.5"></i>Add / Edit Sprint
           </button>
@@ -438,100 +437,30 @@ If you're building with multimodal models or thinking about automated UI testing
                 </button>
               </div>
             </div>
-            <div class="flex items-center gap-2 text-xs font-mono text-emerald-700">
-              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              Live Spec v1.0.0
+
+            <!-- Milestone Selector for Instant Visual Inspection -->
+            <div class="flex items-center gap-2 text-xs">
+              <span class="text-slate-500 font-medium">Sprint View:</span>
+              <select id="mockup-sprint-selector" onchange="renderDeviceMockup(this.value)" class="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg font-bold text-slate-700 text-xs focus:ring-2 focus:ring-emerald-600 outline-none">
+                <option value="auto">Auto (Match Highest Completed)</option>
+                <option value="sprint-1">Sprint 1: Tokens & Nav Shell</option>
+                <option value="sprint-2">Sprint 2: Initial Swap (VQA Fail)</option>
+                <option value="sprint-3">Sprint 3: Cart & 420px Blowout</option>
+                <option value="sprint-4">Sprint 4: Ergonomics Remediation</option>
+                <option value="sprint-5">Sprint 5: Price Delta & Production Candidate</option>
+              </select>
+              <span id="device-spec-tag" class="font-mono text-emerald-700 font-bold ml-1">● Live Spec v1.0.0</span>
             </div>
           </div>
 
           <!-- Phone Chassis Container -->
           <div id="phone-wrapper" class="transition-all duration-300 w-full max-w-[393px] bg-slate-950 p-3 rounded-[48px] shadow-2xl border-4 border-slate-800">
+            <!-- Dynamic Island Notch -->
             <div class="w-28 h-4 bg-black rounded-full mx-auto mb-2"></div>
             
-            <div class="bg-slate-50 rounded-[36px] overflow-hidden border border-slate-800 min-h-[640px] max-h-[720px] overflow-y-auto no-scrollbar">
-              <div class="bg-white border-b border-slate-200 px-4 pt-4 pb-2 sticky top-0 z-30">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <div class="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-xs">🌱</div>
-                    <div>
-                      <div class="text-xs font-black text-slate-900 leading-tight">TrueHarvest</div>
-                      <div class="text-[10px] text-slate-500">Whole Foods · Santa Cruz</div>
-                    </div>
-                  </div>
-                  <div class="w-8 h-8 rounded-lg bg-emerald-700 text-white flex items-center justify-center text-xs">
-                    <i class="fa-solid fa-barcode"></i>
-                  </div>
-                </div>
-
-                <div class="flex items-center gap-1 mt-2.5 overflow-x-auto no-scrollbar">
-                  <button class="px-2.5 py-1 rounded bg-emerald-700 text-white text-[11px] font-bold">Aisle Checker</button>
-                  <button class="px-2.5 py-1 rounded bg-slate-100 text-slate-600 text-[11px] font-medium">Basket Optimizer (7)</button>
-                  <button class="px-2.5 py-1 rounded bg-slate-100 text-slate-600 text-[11px] font-medium">Brand Directory</button>
-                </div>
-              </div>
-
-              <div class="p-3 space-y-3">
-                <div class="bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2 flex items-center justify-between text-xs cursor-pointer">
-                  <div class="flex items-center gap-1.5 font-bold text-emerald-950">
-                    <i class="fa-solid fa-shield-check text-emerald-700"></i>
-                    <span>Level 4: High Purity (80% Optimal Standard)</span>
-                  </div>
-                  <span class="text-[10px] font-bold text-emerald-700">Adjust &or;</span>
-                </div>
-
-                <div class="relative">
-                  <input type="text" placeholder="Scan barcode or type brand (e.g. Kerrygold)..." class="w-full text-xs pl-8 pr-16 py-2 rounded-xl border border-slate-200 bg-white" />
-                  <i class="fa-solid fa-magnifying-glass text-slate-400 absolute left-2.5 top-3 text-[10px]"></i>
-                  <button class="absolute right-1 top-1 w-6 h-6 rounded bg-emerald-700 text-white flex items-center justify-center text-[10px]">
-                    <i class="fa-solid fa-barcode"></i>
-                  </button>
-                </div>
-
-                <div class="flex gap-1 overflow-x-auto no-scrollbar text-[10px]">
-                  <span class="px-2 py-1 bg-slate-100 rounded-lg text-slate-700 font-medium whitespace-nowrap">Quick</span>
-                  <span class="px-2 py-1 bg-slate-100 rounded-lg text-slate-700 font-medium whitespace-nowrap">Ground Beef</span>
-                  <span class="px-2 py-1 bg-slate-100 rounded-lg text-slate-700 font-medium whitespace-nowrap">Pasture Eggs</span>
-                  <span class="px-2 py-1 bg-slate-100 rounded-lg text-slate-700 font-medium whitespace-nowrap">Whole Milk</span>
-                </div>
-
-                <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
-                  <div class="p-3 bg-red-50/40 space-y-2 border-b border-slate-100">
-                    <div class="flex items-center justify-between">
-                      <span class="text-[10px] font-bold text-red-700 uppercase"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Avoid: Factory Farm Sourced</span>
-                      <span class="text-[10px] font-bold text-red-700 font-mono">1 Item Flagged</span>
-                    </div>
-                    <div class="flex justify-between items-start">
-                      <div>
-                        <div class="text-xs font-bold text-slate-900 leading-tight">Swift Premium 80/20 Ground Beef</div>
-                        <div class="text-[10px] text-amber-800 font-medium mt-0.5">Parent Conglomerate: JBS S.A. (Brazil)</div>
-                      </div>
-                      <div class="w-8 h-8 rounded-full border-2 border-red-300 bg-white text-red-700 font-black text-xs flex items-center justify-center shrink-0">
-                        28
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="p-3 bg-emerald-50/40 space-y-2.5">
-                    <div class="flex items-center justify-between">
-                      <span class="text-[10px] font-bold text-emerald-800 uppercase"><i class="fa-solid fa-shield-check mr-1"></i>ROC Gold &amp; 100% Grass-Fed</span>
-                      <span class="text-[10px] font-bold text-emerald-700 font-mono">Aisle 4 (Meat Case)</span>
-                    </div>
-                    <div class="flex justify-between items-start">
-                      <div>
-                        <div class="text-xs font-bold text-slate-900 leading-tight">100% Grass-Fed &amp; Finished Beef (85/15)</div>
-                        <div class="text-[10px] text-emerald-800 font-medium mt-0.5">White Oak Pastures · Bluffton, GA</div>
-                      </div>
-                      <div class="w-8 h-8 rounded-full border-2 border-emerald-600 bg-white text-emerald-700 font-black text-xs flex items-center justify-center shrink-0">
-                        94
-                      </div>
-                    </div>
-                    <button class="w-full py-2 bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs">
-                      Swap &amp; Add to Grocery Basket
-                    </button>
-                  </div>
-                </div>
-
-              </div>
+            <!-- Dynamic Phone Screen Container -->
+            <div id="phone-screen-viewport" class="bg-slate-50 rounded-[36px] overflow-hidden border border-slate-800 min-h-[660px] max-h-[720px] overflow-y-auto no-scrollbar">
+              <!-- Dynamically rendered via renderDeviceMockup() -->
             </div>
           </div>
         </section>
@@ -602,7 +531,7 @@ If you're building with multimodal models or thinking about automated UI testing
         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
           <div>
             <h3 id="modal-form-title" class="text-base font-bold text-slate-900">Add / Edit Sprint</h3>
-            <p class="text-xs text-slate-500">Live localStorage persistence: updates Board &amp; Gantt timeline simultaneously.</p>
+            <p class="text-xs text-slate-500">Live localStorage persistence: updates Board, Gantt, and Device Mockup simultaneously.</p>
           </div>
           <button onclick="closeSprintModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold p-1">✕</button>
         </div>
@@ -686,15 +615,10 @@ If you're building with multimodal models or thinking about automated UI testing
     const IS_ADMIN = urlParams.get('admin') === 'trueharvest2026';
 
     const INITIAL_SPRINTS = [
-      // Sprints 1 to 3: Verified
       { id: 'sprint-1', column: 'verified', title: 'Sprint 1: Tokens & Hardware Scaffolding', tag: 'Tokens & Header', status: 'PASS', startDate: 'Oct 18', endDate: 'Oct 20', pct: 25, offset: 0, desc: '3,376 bytes written to disk. Established token engine and responsive shell.' },
       { id: 'sprint-2', column: 'verified', title: 'Sprint 2: Aisle Controls & Swaps', tag: 'AisleControls, SwapCard', status: 'PASS', startDate: 'Oct 20', endDate: 'Oct 21', pct: 25, offset: 20, desc: 'Aisle controls and product swap card initial scaffolding.' },
       { id: 'sprint-3', column: 'verified', title: 'Sprint 3: Basket Optimizer & Directory', tag: 'Basket & Directory', status: 'PASS', startDate: 'Oct 21', endDate: 'Oct 22', pct: 25, offset: 35, desc: 'BasketOptimizer and BrandDirectory written to disk.' },
-      
-      // Sprint 4: Active Remediation
       { id: 'sprint-4', column: 'active', title: 'Sprint 4: VQA Ergonomics Remediation', tag: 'Dynamic Island, 44px Drawer', status: 'FAIL', startDate: 'Oct 23', endDate: 'Oct 24', pct: 30, offset: 50, desc: 'Resolves safe-area clearance, 44px collapsible drawer, embedded 32px mini barcode trigger, and un-nested swap card.' },
-      
-      // Sprint 5: Backlog Planned
       { id: 'sprint-5', column: 'backlog', title: 'Sprint 5: Transparency & Viewport Guard', tag: 'PriceDeltaCard, BrandCard', status: 'PLANNED', startDate: 'Oct 25', endDate: 'Oct 26', pct: 25, offset: 75, desc: 'Price delta card, Alexandre brand $0.0B math fix, 393px horizontal overflow guards.' },
     ];
 
@@ -719,7 +643,6 @@ If you're building with multimodal models or thinking about automated UI testing
       saveSprints(sprints);
     };
 
-    // Reopen / Move to Active
     window.reopenSprint = function(id) {
       const sprints = getSprints();
       const s = sprints.find(item => item.id === id);
@@ -736,6 +659,9 @@ If you're building with multimodal models or thinking about automated UI testing
       renderHorizontalTrack(sprints);
       renderColumns(sprints);
       renderGantt(sprints);
+      
+      const selector = document.getElementById('mockup-sprint-selector');
+      renderDeviceMockup(selector ? selector.value : 'auto');
     }
 
     function renderStats(sprints) {
@@ -905,6 +831,203 @@ If you're building with multimodal models or thinking about automated UI testing
         `;
       }).join('');
     }
+
+    // ================= DYNAMIC SPRINT-DRIVEN DEVICE MOCKUP =================
+    window.renderDeviceMockup = function(selectedMilestone) {
+      const sprints = getSprints();
+      let activeLevel = 4; // Default to Sprint 4
+
+      if (selectedMilestone === 'auto') {
+        // Determine highest completed sprint level
+        const verifiedIds = sprints.filter(s => s.column === 'verified').map(s => s.id);
+        if (verifiedIds.includes('sprint-5')) activeLevel = 5;
+        else if (verifiedIds.includes('sprint-4')) activeLevel = 4;
+        else if (verifiedIds.includes('sprint-3')) activeLevel = 3;
+        else if (verifiedIds.includes('sprint-2')) activeLevel = 2;
+        else activeLevel = 1;
+      } else {
+        activeLevel = parseInt(selectedMilestone.replace('sprint-', ''), 10) || 4;
+      }
+
+      const specTag = document.getElementById('device-spec-tag');
+      if (specTag) {
+        specTag.innerText = `● Sprint ${activeLevel} Mock Spec`;
+      }
+
+      const viewport = document.getElementById('phone-screen-viewport');
+      if (!viewport) return;
+
+      // 1. Dynamic Header (Safe-Area Clearance added in S4)
+      const safePadding = activeLevel >= 4 ? 'pt-5 pb-2.5' : 'pt-2 pb-2';
+      let navTabsHtml = `<button class="px-2.5 py-1 rounded bg-emerald-700 text-white text-[11px] font-bold">Aisle Checker</button>`;
+      if (activeLevel >= 3) {
+        navTabsHtml += `
+          <button class="px-2.5 py-1 rounded bg-slate-100 text-slate-600 text-[11px] font-medium">Basket Optimizer (7)</button>
+          <button class="px-2.5 py-1 rounded bg-slate-100 text-slate-600 text-[11px] font-medium">Brand Directory</button>
+        `;
+      }
+
+      // 2. Standards Section (Blowout in S2-S3 vs Collapsible 44px in S4-S5)
+      let standardsHtml = '';
+      if (activeLevel < 4) {
+        // The VQA defect: Giant 420px open drawer blowout
+        standardsHtml = `
+          <div class="bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 space-y-2 text-xs">
+            <div class="flex items-center justify-between text-amber-900 font-black">
+              <span>⚠️ Level 4 Standards (UNCOLLAPSED BLOWOUT)</span>
+              <span class="text-[10px] bg-red-100 text-red-800 px-1.5 py-0.5 rounded">VQA DEFECT</span>
+            </div>
+            <p class="text-[11px] text-slate-600 leading-relaxed">
+              Full uncollapsed standards drawer consuming primary mobile fold space. Barcode scanner buried.
+            </p>
+            <div class="h-20 bg-amber-100/60 rounded-lg flex items-center justify-center text-slate-400 text-[10px]">
+              [420px Standards Matrix Occupying Viewport]
+            </div>
+          </div>
+        `;
+      } else {
+        // Remediated 44px Collapsed Accordion
+        standardsHtml = `
+          <div class="bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2 flex items-center justify-between text-xs cursor-pointer hover:bg-emerald-100/60 transition-colors">
+            <div class="flex items-center gap-1.5 font-bold text-emerald-950">
+              <i class="fa-solid fa-shield-check text-emerald-700"></i>
+              <span>Level 4: High Purity (80% Optimal Standard)</span>
+            </div>
+            <span class="text-[10px] font-bold text-emerald-700">Adjust &or;</span>
+          </div>
+        `;
+      }
+
+      // 3. Search Dock (Integrated 32px Barcode in S4+)
+      let searchDockHtml = '';
+      if (activeLevel >= 4) {
+        searchDockHtml = `
+          <div class="relative">
+            <input type="text" placeholder="Scan barcode or type brand (e.g. Kerrygold)..." class="w-full text-xs pl-8 pr-16 py-2 rounded-xl border border-slate-200 bg-white" />
+            <i class="fa-solid fa-magnifying-glass text-slate-400 absolute left-2.5 top-3 text-[10px]"></i>
+            <button class="absolute right-1 top-1 w-6 h-6 rounded bg-emerald-700 text-white flex items-center justify-center text-[10px] shadow-xs">
+              <i class="fa-solid fa-barcode"></i>
+            </button>
+          </div>
+        `;
+      } else {
+        searchDockHtml = `
+          <div class="relative">
+            <input type="text" placeholder="Search brands..." class="w-full text-xs pl-8 pr-4 py-2 rounded-xl border border-slate-200 bg-white" />
+            <i class="fa-solid fa-magnifying-glass text-slate-400 absolute left-2.5 top-3 text-[10px]"></i>
+          </div>
+        `;
+      }
+
+      // 4. Product Swap & Transparency Section
+      let swapCardHtml = '';
+      if (activeLevel >= 4) {
+        // Clean un-nested card with circular gauges
+        swapCardHtml = `
+          <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
+            <div class="p-3 bg-red-50/40 space-y-2 border-b border-slate-100">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold text-red-700 uppercase"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Avoid: Factory Farm Sourced</span>
+                <span class="text-[10px] font-bold text-red-700 font-mono">1 Item Flagged</span>
+              </div>
+              <div class="flex justify-between items-start">
+                <div>
+                  <div class="text-xs font-bold text-slate-900 leading-tight">Swift Premium 80/20 Ground Beef</div>
+                  <div class="text-[10px] text-amber-800 font-medium mt-0.5">Parent Conglomerate: JBS S.A. (Brazil)</div>
+                </div>
+                <div class="w-8 h-8 rounded-full border-2 border-red-300 bg-white text-red-700 font-black text-xs flex items-center justify-center shrink-0">
+                  28
+                </div>
+              </div>
+            </div>
+
+            <div class="p-3 bg-emerald-50/40 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold text-emerald-800 uppercase"><i class="fa-solid fa-shield-check mr-1"></i>ROC Gold &amp; 100% Grass-Fed</span>
+                <span class="text-[10px] font-bold text-emerald-700 font-mono">Aisle 4 (Meat Case)</span>
+              </div>
+              <div class="flex justify-between items-start">
+                <div>
+                  <div class="text-xs font-bold text-slate-900 leading-tight">100% Grass-Fed &amp; Finished Beef (85/15)</div>
+                  <div class="text-[10px] text-emerald-800 font-medium mt-0.5">White Oak Pastures · Bluffton, GA</div>
+                </div>
+                <div class="w-8 h-8 rounded-full border-2 border-emerald-600 bg-white text-emerald-700 font-black text-xs flex items-center justify-center shrink-0">
+                  94
+                </div>
+              </div>
+              <button class="w-full py-2 bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs">
+                Swap &amp; Add to Grocery Basket
+              </button>
+            </div>
+          </div>
+        `;
+      } else {
+        // Defective card-inception pattern
+        swapCardHtml = `
+          <div class="p-3 border-2 border-red-300 rounded-xl bg-red-50/60 space-y-2 text-xs">
+            <span class="text-[10px] font-black text-red-800">Swift Premium Ground Beef (Card Inception Bug)</span>
+            <div class="p-2 border border-slate-300 rounded bg-white">
+              <div class="p-2 border border-amber-300 rounded bg-amber-50">
+                <span class="text-[10px] text-slate-600">Nested border anti-pattern flagged by Gemini vision</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // 5. Sprint 5 Deliverable: Explicit Price Delta Transparency Card
+      let priceDeltaHtml = '';
+      if (activeLevel >= 5) {
+        priceDeltaHtml = `
+          <div class="bg-emerald-900 text-white rounded-2xl p-3.5 space-y-2 shadow-xs">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-bold uppercase tracking-wider text-emerald-300 text-[10px]">Sprint 5: Price Delta Transparency</span>
+              <span class="font-mono font-bold text-emerald-200">+$4.20 (+12%)</span>
+            </div>
+            <p class="text-[11px] text-emerald-100/90 leading-relaxed">
+              Premium covers 100% fair producer margin and Regenerative Organic Certified soil health standards vs CAFO baseline.
+            </p>
+          </div>
+        `;
+      }
+
+      // Assemble Screen
+      viewport.innerHTML = `
+        <div class="bg-white border-b border-slate-200 px-4 ${safePadding} sticky top-0 z-30 shadow-2xs">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-xs">🌱</div>
+              <div>
+                <div class="text-xs font-black text-slate-900 leading-tight">TrueHarvest</div>
+                <div class="text-[10px] text-slate-500">Whole Foods · Santa Cruz</div>
+              </div>
+            </div>
+            <div class="w-8 h-8 rounded-lg bg-emerald-700 text-white flex items-center justify-center text-xs shadow-xs">
+              <i class="fa-solid fa-barcode"></i>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-1 mt-2.5 overflow-x-auto no-scrollbar">
+            ${navTabsHtml}
+          </div>
+        </div>
+
+        <div class="p-3 space-y-3">
+          ${standardsHtml}
+          ${searchDockHtml}
+          
+          <div class="flex gap-1 overflow-x-auto no-scrollbar text-[10px]">
+            <span class="px-2 py-1 bg-slate-100 rounded-lg text-slate-700 font-medium whitespace-nowrap">Quick</span>
+            <span class="px-2 py-1 bg-slate-100 rounded-lg text-slate-700 font-medium whitespace-nowrap">Ground Beef</span>
+            <span class="px-2 py-1 bg-slate-100 rounded-lg text-slate-700 font-medium whitespace-nowrap">Pasture Eggs</span>
+            <span class="px-2 py-1 bg-slate-100 rounded-lg text-slate-700 font-medium whitespace-nowrap">Whole Milk</span>
+          </div>
+
+          ${swapCardHtml}
+          ${priceDeltaHtml}
+        </div>
+      `;
+    };
 
     // Modal Operations
     function openSprintModal() {
