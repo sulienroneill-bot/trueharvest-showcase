@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TrueHarvest — Autonomous Sprint Delivery & VQA Remediation</title>
+  <title>Soliveri — Autonomous Sprint Delivery & VQA Remediation</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
@@ -23,7 +23,7 @@
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <span class="text-base font-black tracking-tight text-slate-900">TrueHarvest</span>
+              <span class="text-base font-black tracking-tight text-slate-900">Soliveri</span>
               <span id="mode-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 tracking-wider uppercase">Showcase Mode</span>
             </div>
             <p class="text-xs text-slate-500">Autonomous Sprint Delivery &amp; Multimodal VQA Remediation</p>
@@ -70,7 +70,7 @@
               Single-Source Truth for Food Transparency &amp; Agentic Development
             </h1>
             <p class="text-sm text-emerald-100/90 leading-relaxed">
-              This dashboard serves as the central operational hub for <strong>TrueHarvest</strong>. It bridges two distinct objectives: delivering a high-purity in-store grocery co-pilot that cuts through food greenwashing, and demonstrating a strict, production-grade <strong>Human-in-the-Loop Agentic Engineering Lifecycle</strong>.
+              This dashboard serves as the central operational hub for <strong>Soliveri</strong>. It bridges two distinct objectives: delivering a high-purity in-store grocery co-pilot that cuts through food greenwashing, and demonstrating a strict, production-grade <strong>Human-in-the-Loop Agentic Engineering Lifecycle</strong>.
             </p>
           </div>
 
@@ -207,7 +207,7 @@
           <div id="linkedin-post-content" class="bg-slate-50 border border-slate-200 rounded-xl p-5 text-xs text-slate-700 font-mono leading-relaxed whitespace-pre-line select-all">
 Buildings in public update: Why we ran a Visual QA (VQA) audit on our food transparency co-pilot, and what happened when it failed.
 
-A few days ago, I shared the initial concept for TrueHarvest—an in-store grocery co-pilot built to cut through grocery aisle greenwashing and verify conglomerate ownership with a single scan.
+A few days ago, I shared the initial concept for Soliveri—an in-store grocery co-pilot built to cut through grocery aisle greenwashing and verify conglomerate ownership with a single scan.
 
 After finishing the first three sprints (design tokens, navigation, initial swap cards, and directory), I could have declared victory. The code compiled, the database was rich, and the UI worked.
 
@@ -292,7 +292,7 @@ If you're building with multimodal models or thinking about automated UI testing
               <div class="space-y-1">
                 <strong class="text-slate-900 block">Without Multimodal VQA:</strong>
                 <p class="text-slate-600 leading-relaxed">
-                  TrueHarvest would have released on Oct 23 on schedule, but users in grocery store aisles holding physical shopping baskets would have encountered a blocked viewport, broken camera scanning, and confusing nested cards.
+                  Soliveri would have released on Oct 23 on schedule, but users in grocery store aisles holding physical shopping baskets would have encountered a blocked viewport, broken camera scanning, and confusing nested cards.
                 </p>
               </div>
               <div class="space-y-1">
@@ -531,9 +531,9 @@ If you're building with multimodal models or thinking about automated UI testing
   </div>
 
   <script>
-    // SECRET PASSCODE: ?admin=trueharvest2026
+    // SECRET PASSCODE: ?admin=soliveri2026
     const urlParams = new URLSearchParams(window.location.search);
-    const IS_ADMIN = urlParams.get('admin') === 'trueharvest2026';
+    const IS_ADMIN = urlParams.get('admin') === 'soliveri2026' || urlParams.get('admin') === 'trueharvest2026';
 
     const INITIAL_SPRINTS = [
       { id: 'sprint-1', column: 'verified', title: 'Sprint 1: Tokens & Hardware Scaffolding', tag: 'Tokens & Header', status: 'PASS', startDate: 'Oct 18', endDate: 'Oct 20', pct: 25, offset: 0, desc: '3,376 bytes written to disk. Established token engine and responsive shell.' },
@@ -544,12 +544,12 @@ If you're building with multimodal models or thinking about automated UI testing
     ];
 
     function getSprints() {
-      const stored = localStorage.getItem('th_showcase_sprints_v2');
+      const stored = localStorage.getItem('soliveri_showcase_sprints_v1');
       return stored ? JSON.parse(stored) : INITIAL_SPRINTS;
     }
 
     function saveSprints(sprints) {
-      localStorage.setItem('th_showcase_sprints_v2', JSON.stringify(sprints));
+      localStorage.setItem('soliveri_showcase_sprints_v1', JSON.stringify(sprints));
       renderAll();
     }
 
@@ -772,7 +772,7 @@ If you're building with multimodal models or thinking about automated UI testing
         ? `\nActive Execution:\n` + activeSprints.map(s => `• ${s.title}`).join("\n") + `\n`
         : "";
 
-      postBox.innerText = `Building in public update: TrueHarvest execution roadmap & VQA engineering audit.
+      postBox.innerText = `Building in public update: Soliveri execution roadmap & VQA engineering audit.
 
 I set up an autonomous Multimodal Visual QA (VQA) audit loop using Gemini in AI Studio to evaluate our grocery co-pilot against production mobile specifications.
 
@@ -1037,7 +1037,7 @@ Live interactive showcase & receipts: https://sulienroneill-bot.github.io/trueha
             <div class="flex items-center gap-2">
               <div class="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-xs">🌱</div>
               <div>
-                <div class="text-xs font-black text-slate-900 leading-tight">TrueHarvest</div>
+                <div class="text-xs font-black text-slate-900 leading-tight">Soliveri</div>
                 <div class="text-[10px] text-slate-500">Whole Foods · Santa Cruz</div>
               </div>
             </div>
@@ -1144,7 +1144,7 @@ Live interactive showcase & receipts: https://sulienroneill-bot.github.io/trueha
 
     function resetDefaults() {
       if (confirm("Reset all sprints back to factory defaults?")) {
-        localStorage.removeItem('th_showcase_sprints_v2');
+        localStorage.removeItem('soliveri_showcase_sprints_v1');
         renderAll();
         closeSprintModal();
       }
