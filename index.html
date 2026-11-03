@@ -534,11 +534,11 @@ If you're building with multimodal models or thinking about automated UI testing
               <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
               <span class="ml-2 text-slate-300">Process Simulation (Pixelbook Terminal ⇄ GitHub Actions)</span>
             </div>
-            <button onclick="runWorkflowSimulation && runWorkflowSimulation()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition">
+            <button id="btn-run-sim" onclick="runWorkflowSimulation()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition">
               <span>▶</span> Simulate Full Workflow
             </button>
           </div>
-          <div class="text-slate-400 leading-relaxed min-h-[60px] space-y-1">
+          <div id="sim-output" class="text-slate-400 leading-relaxed min-h-[60px] space-y-1">
             <p class="text-slate-500">// System ready. Click "Simulate Full Workflow" to inspect the manual vs automated sequence.</p>
             <p class="text-slate-600">Target project horizon active: Weekday notifications at 9:00 AM through Oct 30, 2026.</p>
           </div>
@@ -1313,5 +1313,52 @@ Live interactive showcase & receipts: https://sulienroneill-bot.github.io/trueha
     // Initial render
     renderAll();
   </script>
+<script>
+
+  window.runWorkflowSimulation = function() {
+    const btn = document.getElementById("btn-run-sim");
+    const out = document.getElementById("sim-output");
+    if (!out) return;
+    
+    if (btn) {
+      btn.disabled = true;
+      btn.classList.add("opacity-50", "cursor-not-allowed");
+      btn.innerHTML = "<span>⏳</span> Simulating...";
+    }
+
+    const steps = [
+      { text: "> [09:00:00 PST] Trigger: Scheduled cron reminder dispatched prompt to engineer.", color: "text-amber-400" },
+      { text: "> [09:02:15 PST] AI Studio Run: Gemini 3.8 Flash parsed token bounds (<8k) with 0% key exposure.", color: "text-amber-400" },
+      { text: "> [09:03:40 PST] File Watcher: watch-sprints.js detected file drop; hot-reloading Vite dev server.", color: "text-emerald-400" },
+      { text: "> [09:04:10 PST] Branch & Push: Auto-staged changes; created branch review-sprint-4 and pushed to origin.", color: "text-emerald-400" },
+      { text: "> [09:06:20 PST] PR Code Review: Human-in-the-loop approved diffs & confirmed VQA compliance.", color: "text-amber-400" },
+      { text: "> [09:07:05 PST] CI/CD Deploy: GitHub Pages build green; live sprint-receipts.json synchronized.", color: "text-emerald-400" },
+      { text: "✔ Full lifecycle complete. Ready for next automated dispatch horizon.", color: "text-white font-bold" }
+    ];
+
+    out.innerHTML = "";
+    let i = 0;
+
+    function printNext() {
+      if (i < steps.length) {
+        const p = document.createElement("p");
+        p.className = steps[i].color + " transition-opacity duration-200";
+        p.textContent = steps[i].text;
+        out.appendChild(p);
+        i++;
+        setTimeout(printNext, 650);
+      } else {
+        if (btn) {
+          btn.disabled = false;
+          btn.classList.remove("opacity-50", "cursor-not-allowed");
+          btn.innerHTML = "<span>▶</span> Re-run Simulation";
+        }
+      }
+    }
+
+    printNext();
+  };
+
+</script>
 </body>
 </html>
